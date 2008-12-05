@@ -4,7 +4,7 @@
 ;; Fill these fields with your own information and let Tumble do its magic.
 (setq email "federico.builes@gmail.com")
 (setq password "your_password")
-;;(setq group "testingtumble.tumblr.com")
+;(setq group "testingtumble.tumblr.com")
 
 
 (defun tumble-default-headers ()
@@ -12,7 +12,7 @@
         (cons "password" password)
         (cons "format" "markdown")
         (cons "generator" "tumble.el")
-;;        (cons "group" group)
+;        (cons "group" group)
         ))
 
 (defun tumble-region (min max title)
@@ -30,10 +30,20 @@
 
 (defun tumble-text (title body)
   "Post a new text to a tumblelog" 
-  (http-post "http://www.tumblr.com/api/write"
-             (append
-              (list (cons "type" "regular")
-                    (cons "title" title)
-                    (cons "body" body))
-              (tumble-default-headers))
-             'utf-8))
+  (tumble-http-post 
+   (append
+    (list (cons "type" "regular")
+          (cons "title" title)
+          (cons "body" body))
+    (tumble-default-headers))))
+    
+
+(defun tumble-quote-from-region (min max source)
+  "Post a region as a quote in Tumblr"
+  (interactive "r \nsSource (optional): " )
+  
+  )
+
+(defun tumble-http-post (request)
+  (http-post "http://www.tumblr.com/api/write" request 'utf-8))
+  
