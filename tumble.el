@@ -1,23 +1,27 @@
-(setq load-path (cons "./vendor/"  load-path))
+(setq load-path (cons "./vendor"  load-path))
 (load "http-post")
 
 ;; Fill these fields with your own information and let Tumble do its magic.
 (setq email "federico.builes@gmail.com")
 (setq password "your_password")
+;;(setq group "testingtumble.tumblr.com")
+
 
 (defun tumble-default-headers ()
   (list (cons "email" email) 
         (cons "password" password)
         (cons "format" "markdown")
-        (cons "generator" "tumble.el")))
+        (cons "generator" "tumble.el")
+;;        (cons "group" group)
+        ))
 
-(defun tumble-region (min max)
+(defun tumble-region (min max title)
   "Post the current region as a new text in Tumblr"
-  (interactive "r")
+  (interactive "r \nsTitle: ")
   (let* ( 
          (body (buffer-substring-no-properties min max))
          )
-    (tumble-text "title" body)))
+    (tumble-text title body)))
 
 (defun tumble-buffer ()
   "Post the current buffer as a new text in Tumblr"
@@ -33,16 +37,3 @@
                     (cons "body" body))
               (tumble-default-headers))
              'utf-8))
-
-
-
-
-
-
-
-
-
-
-
-
-
