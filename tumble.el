@@ -2,21 +2,24 @@
 (load "http-post")
 
 ;; Fill these fields with your own information and let Tumble do its magic.
-(setq email "federico.builes@gmail.com")
-(setq password "your_password")
+(setq tumble-email "federico.builes@gmail.com")
+(setq tumble-password "your_password")
 ;(setq group "testingtumble.tumblr.com")
+;; You can set this to either "markdown" or "html".
+(setq format "markdown")
+
 
 
 (defun tumble-default-headers ()
-  (list (cons "email" email) 
-        (cons "password" password)
-        (cons "format" "markdown")
+  (list (cons "email" tumble-email) 
+        (cons "password" tumble-password)
+        (cons "format" tumble-format)
         (cons "generator" "tumble.el")
 ;        (cons "group" group)
         ))
 
 (defun tumble-region (min max title)
-  "Post the current region as a new text in Tumblr"
+  "Post the current region as a text in Tumblr"
   (interactive "r \nsTitle: ")
   (let* ( 
          (body (buffer-substring-no-properties min max))
@@ -24,7 +27,7 @@
     (tumble-text title body)))
 
 (defun tumble-buffer ()
-  "Post the current buffer as a new text in Tumblr"
+  "Post the current buffer as a text in Tumblr"
   (interactive)
   (tumble-region (point-min) (point-max)))
 
