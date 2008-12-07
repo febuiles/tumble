@@ -21,12 +21,12 @@
   "Post the current region as a text in Tumblr"
   (interactive "r \nsTitle: ")
   (let ((body (buffer-substring-no-properties min max)))
-    (tumble-text title body)))
+    (tumble-post-text title body)))
 
 (defun tumble-text-from-buffer ()
   "Post the current buffer as a text in Tumblr"
   (interactive)
-  (tumble-text-from-region (point-min) (point-max)))
+  (tumble-post-text-from-region (point-min) (point-max)))
 
 (defun tumble-quote-from-region (min max source)
   "Post a region as a quote in Tumblr"
@@ -60,7 +60,7 @@
           (cons "description" description))
     (tumble-default-headers))))
 
-(defun tumble-text (title body)
+(defun tumble-post-text (title body)
   "Post a new text to a tumblelog" 
   (tumble-http-post 
    (append
