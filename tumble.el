@@ -1,3 +1,6 @@
+;; WARNING: This is pretty experimental right now so proceed with 
+;; caution or you might blow something up!
+
 (setq load-path (cons "./vendor"  load-path))
 (load "http-post")
 
@@ -20,30 +23,25 @@
 (defun tumble-text-from-region (min max title)
   "Post the current region as a text in Tumblr"
   (interactive "r \nsTitle: ")
-  (let ((body (buffer-substring-no-properties min max)))
-    (tumble-post-text title body)))
+  (tumble-post-text title (region-text)))
 
-(defun tumble-text-from-buffer ()
+(defun tumble-text-from-buffer (title)
   "Post the current buffer as a text in Tumblr"
-  (interactive)
-  (tumble-post-text-from-region (point-min) (point-max)))
+  (interactive "sTitle: ")
+  (tumble-text-from-region (point-min) (point-max) title))
 
 (defun tumble-quote-from-region (min max source)
   "Post a region as a quote in Tumblr"
   (interactive "r \nsSource (optional): " )
   (tumble-http-post
-   (let ((quote (buffer-substring-no-properties min max)))
-     (append
-      (list (cons "type" "quote")
-            (cons "quote" quote)
-            (cons "source" source))
-      (tumble-default-headers)))))
+   (list (cons "type" "quote")
+         (cons "quote" (region-text))
+         (cons "source" source))))
 
 (defun tumble-link-with-description (min max name url)
   "Posts a Tumblr link using the region as the description"
   (interactive "r \nsName (optional): \nsLink: ")
-   (let ((description (buffer-substring-no-properties min max)))
-     (tumble-post-link name url description)))
+  (tumble-post-link name url (region-text)))
 
 (defun tumble-link (name url)
   "Posts a Tumblr link without description"
@@ -53,22 +51,21 @@
 (defun tumble-post-link (name url description)
   "Post a link to a tumblelog"
   (tumble-http-post
-   (append
-    (list (cons "type" "link")
-          (cons "name" name)
-          (cons "url" url)
-          (cons "description" description))
-    (tumble-default-headers))))
+   (list (cons "type" "link")
+         (cons "name" name)
+         (cons "url" url)
+         (cons "description" description))))
 
 (defun tumble-post-text (title body)
   "Post a new text to a tumblelog" 
   (tumble-http-post 
-   (append
-    (list (cons "type" "regular")
-          (cons "title" title)
-          (cons "body" body))
-    (tumble-default-headers))))
-    
+   (list (cons "type" "regular")
+         (cons "title" title)
+         (cons "body" body))))
+
 (defun tumble-http-post (request)
-  (http-post "http://www.tumblr.com/api/write" request 'utf-8))
-  
+  (http-post "http://www.tumblr.com/api/write" 
+             (append (tumble-default-headers) request) 
+             'utf-8))
+
+(defun region-text () (buffer-substring-no-properties min max))
