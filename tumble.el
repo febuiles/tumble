@@ -12,7 +12,7 @@
 (setq tumble-format "markdown")
 
 (defun tumble-default-headers ()
-  ;; these headers will go into every request, no need for modification.
+  ;; generic headers
   (list (cons "email" tumble-email) 
         (cons "password" tumble-password)
         (cons "format" tumble-format)
@@ -64,8 +64,11 @@
          (cons "body" body))))
 
 (defun tumble-http-post (request)
+  "Send the POST to Tumblr"
   (http-post "http://www.tumblr.com/api/write" 
              (append (tumble-default-headers) request) 
              'utf-8))
 
-(defun region-text () (buffer-substring-no-properties min max))
+(defun region-text () 
+  "returns the text of the region inside an (interactive 'r') function"
+  (buffer-substring-no-properties min max))
