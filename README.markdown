@@ -7,21 +7,21 @@ Overview
 Tumble is a mode for interacting with Tumblr. It currently
 provides the following functions:
 
-    tumble-text-from-region - Posts the selected region as a "Text".      
-    tumble-text-from-buffer - Posts the current buffer as a "Text".   
+    tumble-text-from-region
+    tumble-text-from-buffer
 
-    tumble-quote-from-region - Posts the current region as a "Quote". Prompts
-    for an optional "source" parameter.
+    tumble-quote-from-region
 
-    tumble-link - Prompts for a title and a URL for a new "Link".        
-    tumble-link-with-description - Prompts for a title and a URL for a new "Link" and uses the selected region as the link's description.
+    tumble-link
+    tumble-link-with-description
 
-    tumble-chat-from-region - Posts the selected region as a "Chat".      
-    tumble-chat-from-buffer - Posts the current buffer as a "Chat".
+    tumble-chat-from-region
+    tumble-chat-from-buffer
 
-    tumble-photo-from-url - Prompts for a file URL, a caption and a
-    clickthrough and posts the result as a "Photo".       
-    tumble-photo-from-file - Prompts for a local file, a caption and a clickthrough and posts the result as a Photo.
+    tumble-photo-from-url
+    tumble-photo-from-file
+
+Read tumble.el for more information about each function.
 
 Installation
 ------------
@@ -32,20 +32,17 @@ Download Tumble to some directory:
 Add it to your load list:
 
     (add-to-list 'load-path "~/some_directory/tumble.el")
-
     (require 'tumble)
 
 Open tumble.el (this file) and modify the following variables:
 
     (setq tumble-email "your_email@something.com")
-
     (setq tumble-password "your_password")
 
 (optional) Tumble uses no group for posting and Markdown as the default 
 format but you can change these:
 
     (setq tumble-group "your_group.tumblr.com")
-    
     (setq tumble-format "html")
 
 Danger, Will Robinson!     
@@ -53,6 +50,8 @@ This is currently under development so proceed with caution.
 
 License
 -------
+
+Check tumble.el for more information.
 
 Copyright (c) 2008 Federico Builes
 Fork freely!
