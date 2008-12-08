@@ -17,7 +17,7 @@
         (cons "password" tumble-password)
         (cons "format" tumble-format)
         (cons "generator" "tumble.el")
-;        (cons "group" tumble-group)
+;       (cons "group" tumble-group)
         ))
 
 (defun tumble-text-from-region (min max title)
@@ -48,8 +48,23 @@
   (interactive "sName (optional): \nsLink: ")
   (tumble-post-link name url ""))
 
+(defun tumble-chat-from-region (min max title)
+  (interactive "r \nsTitle (optional): ")
+  (tumble-post-chat title (region-text)))
+
+(defun tumble-chat-from-buffer (title)
+  (interactive "sTitle (optional): ")
+  (tumble-chat-from-region (point-min) (point-max) title))
+
+(defun tumble-post-chat (title chat)
+  "Posts a new chat to a tumblelog"
+  (tumble-http-post
+   (list (cons "type" "conversation")
+         (cons "title" title)
+         (cons "conversation" chat))))
+
 (defun tumble-post-link (name url description)
-  "Post a link to a tumblelog"
+  "Posts a link to a tumblelog"
   (tumble-http-post
    (list (cons "type" "link")
          (cons "name" name)
@@ -57,7 +72,7 @@
          (cons "description" description))))
 
 (defun tumble-post-text (title body)
-  "Post a new text to a tumblelog" 
+  "Posts a new text to a tumblelog" 
   (tumble-http-post 
    (list (cons "type" "regular")
          (cons "title" title)
