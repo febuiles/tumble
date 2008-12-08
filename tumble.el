@@ -35,7 +35,7 @@
 ;;     Posts the current buffer as a "Text".
 
 ;; tumble-quote-from-region 
-;;     Posts the current region as a "Quote".. Prompts
+;;     Posts the current region as a "Quote". Prompts
 ;;     for an optional "source" parameter.
 
 ;; tumble-link 
