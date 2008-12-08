@@ -7,47 +7,47 @@ Overview
 Tumble is a mode for interacting with Tumblr. It currently
 provides the following functions:
 
-tumble-text-from-region - Posts the selected region as a "Text".      
-tumble-text-from-buffer - Posts the current buffer as a "Text".   
+    tumble-text-from-region - Posts the selected region as a "Text".      
+    tumble-text-from-buffer - Posts the current buffer as a "Text".   
 
-tumble-quote-from-region - Posts the current region as a "Quote". Prompts for
-an optional "source" parameter.
+    tumble-quote-from-region - Posts the current region as a "Quote". Prompts
+    for an optional "source" parameter.
 
-tumble-link - Prompts for a title and a URL for a new "Link".        
-tumble-link-with-description - Prompts for a title and a URL for a new "Link" and uses the selected region as the link's description.
+    tumble-link - Prompts for a title and a URL for a new "Link".        
+    tumble-link-with-description - Prompts for a title and a URL for a new "Link" and uses the selected region as the link's description.
 
-tumble-chat-from-region - Posts the selected region as a "Chat".      
-tumble-chat-from-buffer - Posts the current buffer as a "Chat".
+    tumble-chat-from-region - Posts the selected region as a "Chat".      
+    tumble-chat-from-buffer - Posts the current buffer as a "Chat".
 
-tumble-photo-from-url - Prompts for a file URL, a caption and a clickthrough
-and posts the result as a "Photo".       
-tumble-photo-from-file - Prompts for a local file, a caption and a clickthrough and posts the result as a Photo.
+    tumble-photo-from-url - Prompts for a file URL, a caption and a
+    clickthrough and posts the result as a "Photo".       
+    tumble-photo-from-file - Prompts for a local file, a caption and a clickthrough and posts the result as a Photo.
 
 Installation
 ------------
-1. Download Tumble to some directory:
+Download Tumble to some directory:
 
     $ git clone git://github.com/febuiles/tumble.git
 
-2. Add it to your load list:
+Add it to your load list:
 
     (add-to-list 'load-path "~/some_directory/tumble.el")
 
     (require 'tumble)
 
-3. Open tumble.el (this file) and modify the following variables:
+Open tumble.el (this file) and modify the following variables:
 
     (setq tumble-email "your_email@something.com")
 
     (setq tumble-password "your_password")
 
-4. (optional) Tumble uses no group for posting and Markdown as the default 
+(optional) Tumble uses no group for posting and Markdown as the default 
 format but you can change these:
-<pre>
+
     (setq tumble-group "your_group.tumblr.com")
     
     (setq tumble-format "html")
-</pre>
+
 Danger, Will Robinson!     
 This is currently under development so proceed with caution.
 
