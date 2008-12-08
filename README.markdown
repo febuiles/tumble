@@ -1,4 +1,4 @@
-An Emacs mode for Tumblr
+Tumble - An Emacs mode for Tumblr
 ========================
 
 Danger, Will Robinson! 
