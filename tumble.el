@@ -87,15 +87,6 @@
 (setq tumble-group "")                  ; uncomment to use a group.
 (setq tumble-format "markdown")         ; you can change this to html
 
-(defun tumble-default-headers ()
-  ;; generic headers
-  (list (cons 'email tumble-email) 
-        (cons 'password tumble-password)
-        (cons 'format tumble-format)
-        (cons 'generator "tumble.el")
-        (cons 'group tumble-group)
-        ))
-
 (defun tumble-text-from-region (min max title)
   "Post the current region as a text in Tumblr"
   (interactive "r \nsTitle: ")
@@ -179,10 +170,19 @@
          (cons 'click-through-url url))))
 
 
+(defun tumble-default-headers ()
+  "Generic Tumblr headers"
+  (list (cons 'email tumble-email) 
+        (cons 'password tumble-password)
+        (cons 'format tumble-format)
+        (cons 'generator "tumble.el")
+        (cons 'group tumble-group)
+        ))
+
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
   (http-post-simple "http://www.tumblr.com/api/write" 
-             (append (tumble-default-headers) request)))
+                    (append (tumble-default-headers) request)))
 
 (defun tumble-multipart-http-post (filename caption url mime data)
   "Multipart POST used to upload files to Tumblr"
