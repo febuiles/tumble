@@ -2,7 +2,7 @@
 ;; caution or you might blow something up!
 
 (setq load-path (cons "./vendor"  load-path))
-(load "http-post")
+(load "http-post-simple")
 
 ;; Fill these fields with your own information and let Tumble do its magic.
 (setq tumble-email "federico.builes@gmail.com")
@@ -13,11 +13,11 @@
 
 (defun tumble-default-headers ()
   ;; generic headers
-  (list (cons "email" tumble-email) 
-        (cons "password" tumble-password)
-        (cons "format" tumble-format)
-        (cons "generator" "tumble.el")
-;       (cons "group" tumble-group)
+  (list (cons 'email tumble-email) 
+        (cons 'password tumble-password)
+        (cons 'format tumble-format)
+        (cons 'generator "tumble.el")
+ ;       (cons 'group tumble-group)
         ))
 
 (defun tumble-text-from-region (min max title)
@@ -34,9 +34,9 @@
   "Post a region as a quote in Tumblr"
   (interactive "r \nsSource (optional): " )
   (tumble-http-post
-   (list (cons "type" "quote")
-         (cons "quote" (region-text))
-         (cons "source" source))))
+   (list (cons 'type "quote")
+         (cons 'quote (region-text))
+         (cons 'source source))))
 
 (defun tumble-link-with-description (min max name url)
   "Posts a Tumblr link using the region as the description"
@@ -49,41 +49,81 @@
   (tumble-post-link name url ""))
 
 (defun tumble-chat-from-region (min max title)
+  "Posts a chat to Tumblr using the current region"
   (interactive "r \nsTitle (optional): ")
   (tumble-post-chat title (region-text)))
 
 (defun tumble-chat-from-buffer (title)
+  "Posts a chat to Tumblr using the current buffer"
   (interactive "sTitle (optional): ")
   (tumble-chat-from-region (point-min) (point-max) title))
 
-(defun tumble-post-chat (title chat)
-  "Posts a new chat to a tumblelog"
-  (tumble-http-post
-   (list (cons "type" "conversation")
-         (cons "title" title)
-         (cons "conversation" chat))))
+(defun tumble-photo-with-source (source caption url)
+  "Posts a photo to Tumblr using an URL as the source"
+  (interactive "sURL: \nsCaption (optional): \nsLink (optional): ")
+  (tumble-post-photo source caption url))
 
-(defun tumble-post-link (name url description)
-  "Posts a link to a tumblelog"
-  (tumble-http-post
-   (list (cons "type" "link")
-         (cons "name" name)
-         (cons "url" url)
-         (cons "description" description))))
+(defun tumble-photo-from-file (file caption url)
+  "Posts a local photo to Tumblr"
+  (interactive "fPhoto: \nsCaption (optional): \nsLink (optional): ")
+  (tumble-multipart-http-post file caption url 
+                              ; this is an ugly and hackish way to get the content-type
+                              (format "image/%s" (file-name-extension file))
+                              (file-data file)))
 
 (defun tumble-post-text (title body)
   "Posts a new text to a tumblelog" 
   (tumble-http-post 
-   (list (cons "type" "regular")
-         (cons "title" title)
-         (cons "body" body))))
+   (list (cons 'type "regular")
+         (cons 'title title)
+         (cons 'body body))))
+
+(defun tumble-post-chat (title chat)
+  "Posts a new chat to a tumblelog"
+  (tumble-http-post
+   (list (cons 'type "conversation")
+         (cons 'title title)
+         (cons 'conversation chat))))
+
+(defun tumble-post-link (name url description)
+  "Posts a link to a tumblelog"
+  (tumble-http-post
+   (list (cons 'type "link")
+         (cons 'name name)
+         (cons 'url url)
+         (cons 'description description))))
+
+(defun tumble-post-photo (source caption url)
+  "Posts a photo to a tumblelog"
+  (tumble-http-post
+   (list (cons 'type "photo")
+         (cons 'source source)
+         (cons 'caption caption)
+         (cons 'click-through-url url))))
+
 
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
-  (http-post "http://www.tumblr.com/api/write" 
-             (append (tumble-default-headers) request) 
-             'utf-8))
+  (http-post-simple "http://www.tumblr.com/api/write" 
+             (append (tumble-default-headers) request)))
+
+(defun tumble-multipart-http-post (filename caption url mime data)
+  "Multipart POST used to upload files to Tumblr"
+  (http-post-simple-multipart "http://www.tumblr.com/api/write" 
+                              (append (tumble-default-headers)
+                                      (list (cons 'type "photo")
+                                            (cons 'caption caption)
+                                            (cons 'click-through-url url)))
+                              (list (list "data" filename mime data))))
 
 (defun region-text () 
   "returns the text of the region inside an (interactive 'r') function"
   (buffer-substring-no-properties min max))
+
+(defun file-data (filename)
+  "reads filename and returns the data"
+  (with-temp-buffer
+    (insert-file-contents-literally filename)
+    (buffer-substring-no-properties (point-min)
+                                    (point-max))))
+
