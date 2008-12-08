@@ -43,11 +43,11 @@ Installation
 
 4. (optional) Tumble uses no group for posting and Markdown as the default 
 format but you can change these:
-
+<pre>
     (setq tumble-group "your_group.tumblr.com")
     
     (setq tumble-format "html")
-
+</pre>
 Danger, Will Robinson!     
 This is currently under development so proceed with caution.
 
