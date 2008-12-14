@@ -82,7 +82,7 @@
 (require 'http-post-simple)
 
 ;; Personal information
-(setq tumble-email "your_email@something.com")
+(setq tumble-email "your_user@something.com")
 (setq tumble-password "your_password")
 (setq tumble-group "")                  ; uncomment to use a group.
 (setq tumble-format "markdown")         ; you can change this to html
@@ -169,7 +169,6 @@
          (cons 'caption caption)
          (cons 'click-through-url url))))
 
-
 (defun tumble-default-headers ()
   "Generic Tumblr headers"
   (list (cons 'email tumble-email) 
@@ -181,8 +180,19 @@
 
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
-  (http-post-simple "http://www.tumblr.com/api/write" 
-                    (append (tumble-default-headers) request)))
+  (let* ((resp (http-post-simple "http://www.tumblr.com/api/write" 
+                                 (append (tumble-default-headers) request))))
+    (tumble-process-response(third resp))))
+
+(defun tumble-process-response (response)
+  "Returns a message based on the response code"
+  (message
+   (cond ((eq response 200) "No post created")
+         ((eq response 201) "Post created")
+         ((eq response 400) "Bad request")
+         ((eq response 403) "Authentication Failed")
+         ((t) "Unknown Response"))))
+
 
 (defun tumble-multipart-http-post (filename caption url mime data)
   "Multipart POST used to upload files to Tumblr"
