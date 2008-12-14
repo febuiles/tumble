@@ -38,6 +38,7 @@ Open tumble.el (this file) and modify the following variables:
 
     (setq tumble-email "your_email@something.com")
     (setq tumble-password "your_password")
+    (setq tumble-url "your_tumblelog.tumblr.com")
 
 (optional) Tumble uses no group for posting and Markdown as the default 
 format but you can change these:
