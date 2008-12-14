@@ -4,7 +4,7 @@
      
 ;; Author: Federico Builes <federico.builes@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 0.8
+;; Version: 0.9
 ;; Keywords: tumblr
      
 ;; This file is NOT part of GNU Emacs.
@@ -70,6 +70,7 @@
 ;; Open tumble.el (this file) and modify the following variables:
 ;; (setq tumble-email "your_email@something.com")
 ;; (setq tumble-password "your_password")
+;; (setq tumble-url "your_tumblelog.tumblr.com")
 ;; 
 ;; Tumble uses no group for posting and Markdown as the default 
 ;; format but you can change these:
@@ -82,10 +83,12 @@
 (require 'http-post-simple)
 
 ;; Personal information
-(setq tumble-email "your_user@something.com")
+(setq tumble-email "your_email@something.com")
 (setq tumble-password "your_password")
-(setq tumble-group "")                  ; uncomment to use a group.
-(setq tumble-format "markdown")         ; you can change this to html
+(setq tumble-url "your_tumblelog.tumblr.com")
+;; Optional information
+(setq tumble-group "")                     ; uncomment to use a group.
+(setq tumble-format "markdown")            ; you can change this to html
 
 (defun tumble-text-from-region (min max title)
   "Post the current region as a text in Tumblr"
@@ -175,40 +178,49 @@
         (cons 'password tumble-password)
         (cons 'format tumble-format)
         (cons 'generator "tumble.el")
-        (cons 'group tumble-group)
-        ))
+        (cons 'group tumble-group)))
 
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
   (let* ((resp (http-post-simple "http://www.tumblr.com/api/write" 
-                                 (append (tumble-default-headers) request))))
-    (tumble-process-response(third resp))))
-
-(defun tumble-process-response (response)
-  "Returns a message based on the response code"
-  (message
-   (cond ((eq response 200) "No post created")
-         ((eq response 201) "Post created")
-         ((eq response 400) "Bad request")
-         ((eq response 403) "Authentication Failed")
-         ((t) "Unknown Response"))))
-
+                    (append (tumble-default-headers) request))))
+    (tumble-process-response resp)))
 
 (defun tumble-multipart-http-post (filename caption url mime data)
   "Multipart POST used to upload files to Tumblr"
-  (http-post-simple-multipart "http://www.tumblr.com/api/write" 
+  (let* ((resp (http-post-simple-multipart "http://www.tumblr.com/api/write" 
                               (append (tumble-default-headers)
                                       (list (cons 'type "photo")
                                             (cons 'caption caption)
                                             (cons 'click-through-url url)))
-                              (list (list "data" filename mime data))))
+                              (list (list "data" filename mime data)))))
+    (tumble-process-response resp)))
+
+(defun tumble-process-response (response)
+  "Returns a message based on the response code"
+  (let* ((code (third response)))
+  (message
+   (cond ((eq code 200) "No post created")
+         ((eq code 201) 
+          (tumble-paste-url (car response)) 
+          "Post created" 
+          )
+         ((eq code 400) "Bad request")
+         ((eq code 403) "Authentication Failed")
+         (t "Unknown Response")))))
+
+(defun tumble-paste-url (id)
+  "Adds the response URL to the kill ring"
+  (let* ((last-char (substring tumble-url -1)))
+    (cond ((string= last-char "/") (kill-new (concat tumble-url id))) ; url has a trailing slash
+          (t (kill-new (concat tumble-url (concat "/" id)))))))
 
 (defun tumble-region-text() 
-  "returns the text of the region inside an (interactive 'r') function"
+  "Returns the text of the region inside an (interactive 'r') function"
   (buffer-substring-no-properties min max))
 
 (defun tumble-file-data (filename)
-  "reads filename and returns the data"
+  "Reads filename and returns the data"
   (with-temp-buffer
     (insert-file-contents-literally filename)
     (buffer-substring-no-properties (point-min)
