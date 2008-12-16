@@ -21,6 +21,8 @@ provides the following functions:
     tumble-photo-from-url
     tumble-photo-from-file
 
+    tumble-audio-from-file
+
 Read tumble.el for more information about each function.
 
 Installation

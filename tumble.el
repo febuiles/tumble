@@ -55,6 +55,9 @@
 ;; tumble-photo-from-file 
 ;;     Prompts for a local file, a caption and a clickthrough and
 ;;     posts the result as a Photo.
+;; tumble-audio-from-file 
+;;     Prompts for a local file and an optional caption to 
+;;     upload a MP3 file.
 
 ;; Installation: 
 
