@@ -82,13 +82,12 @@
 (setq load-path (cons "./vendor"  load-path))
 (require 'http-post-simple)
 
-;; Personal information
 (setq tumble-email "your_email@something.com")
 (setq tumble-password "your_password")
 (setq tumble-url "your_tumblelog.tumblr.com")
 ;; Optional information
-(setq tumble-group "")                     ; uncomment to use a group.
-(setq tumble-format "markdown")            ; you can change this to html
+(setq tumble-group "")                  ; uncomment to use a group.
+(setq tumble-format "markdown")         ; you can change this to html
 
 (defun tumble-text-from-region (min max title)
   "Post the current region as a text in Tumblr"
@@ -133,14 +132,24 @@
   (interactive "sURL: \nsCaption (optional): \nsLink (optional): ")
   (tumble-post-photo source caption url))
 
-(defun tumble-photo-from-file (file caption url)
+(defun tumble-photo-from-file (filename caption url)
   "Posts a local photo to Tumblr"
   (interactive "fPhoto: \nsCaption (optional): \nsLink (optional): ")
-  (tumble-multipart-http-post file caption url 
-                              ;; this is an ugly and hackish way to get the 
-                              ;; content-type
-                              (format "image/%s" (file-name-extension file))
-                              (tumble-file-data file)))
+  (tumble-multipart-http-post 
+   (list (cons 'type "photo")
+         (cons 'caption caption)
+         (cons 'click-through-url url))
+   ;; this is an ugly and hackish way to get the 
+   ;; content-type
+   filename 
+   (format "image/%s" (file-name-extension filename))
+   (tumble-file-data filename)))
+
+(defun tumble-audio-from-file (filename caption)
+  (interactive "fAudio: \nsCaption (optional): ")
+  (tumble-multipart-http-post (list (cons 'type "audio")
+                                    (cons 'caption caption))
+                              filename "audio/mpeg" (tumble-file-data filename)))
 
 (defun tumble-post-text (title body)
   "Posts a new text to a tumblelog" 
@@ -183,31 +192,30 @@
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
   (let* ((resp (http-post-simple "http://www.tumblr.com/api/write" 
-                    (append (tumble-default-headers) request))))
+                                 (append (tumble-default-headers) request))))
     (tumble-process-response resp)))
 
-(defun tumble-multipart-http-post (filename caption url mime data)
+(defun tumble-multipart-http-post (request filename mime data)
   "Multipart POST used to upload files to Tumblr"
   (let* ((resp (http-post-simple-multipart "http://www.tumblr.com/api/write" 
-                              (append (tumble-default-headers)
-                                      (list (cons 'type "photo")
-                                            (cons 'caption caption)
-                                            (cons 'click-through-url url)))
-                              (list (list "data" filename mime data)))))
+                                           (append (tumble-default-headers)
+                                                   request)
+                                           (list (list "data" filename mime data)))))
     (tumble-process-response resp)))
 
+;; RESPONSE is a simple http response list with (url response code)
 (defun tumble-process-response (response)
   "Returns a message based on the response code"
-  (let* ((code (third response)))
-  (message
-   (cond ((eq code 200) "No post created")
-         ((eq code 201) 
-          (tumble-paste-url (car response)) 
-          "Post created" 
-          )
-         ((eq code 400) "Bad request")
-         ((eq code 403) "Authentication Failed")
-         (t "Unknown Response")))))
+  (let* ((code (third response)))       ; 
+    (message
+     (cond ((eq code 200) "No post created")
+           ((eq code 201) 
+            (tumble-paste-url (car response)) 
+            "Post created" 
+            )
+           ((eq code 400) "Bad request")
+           ((eq code 403) "Authentication Failed")
+           (t "Unknown Response")))))
 
 (defun tumble-paste-url (id)
   "Adds the response URL to the kill ring"
