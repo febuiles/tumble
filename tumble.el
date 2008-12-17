@@ -92,7 +92,7 @@
 (setq tumble-password "your_password")
 (setq tumble-url "your_tumblelog.tumblr.com")
 ;; Optional information
-(setq tumble-group "testingtumble.tumblr.com")                  ; uncomment to use a group.
+(setq tumble-group "")                  ; uncomment to use a group.
 (setq tumble-format "markdown")         ; you can change this to html
 
 (defun tumble-text-from-region (min max title)
@@ -141,23 +141,26 @@
 (defun tumble-photo-from-file (filename caption url)
   "Posts a local photo to Tumblr"
   (interactive "fPhoto: \nsCaption (optional): \nsLink (optional): ")
-  (let* ((request (list (cons 'type "photo")
+  (let* ((file-format  (format "image/%s" (file-name-extension filename))) ; hack
+         (data (tumble-file-data filename))
+         (request (list (cons 'type "photo")
                         (cons 'caption caption)
                         (cons 'click-through-url url))))
-
-  (tumble-multipart-http-post request filename
-                              ;; this is an ugly and hackish way to get the 
-                              ;; content-type
-                              (format "image/%s" (file-name-extension filename))
-                              (tumble-file-data filename))))
+    (tumble-multipart-http-post request 
+                                filename
+                                file-format
+                                data)))
 
 (defun tumble-audio-from-file (filename caption)
   "Posts an audio file to Tumblr"
   (interactive "fAudio: \nsCaption (optional): ")
-  (let* ((request (list (cons 'type "audio")
+  (let* ((data (tumble-file-data filename))
+         (request (list (cons 'type "audio")
                         (cons 'caption caption))))
-    (tumble-multipart-http-post request filename "audio/mpeg" 
-                                (tumble-file-data filename))))
+    (tumble-multipart-http-post request 
+                                filename 
+                                "audio/mpeg" 
+                                data)))
 
 (defun tumble-post-text (title body)
   "Posts a new text to a tumblelog" 
@@ -219,8 +222,7 @@
      (cond ((eq code 200) "No post created")
            ((eq code 201) 
             (tumble-paste-url (car response)) 
-            "Post created" 
-            )
+            "Post created" )
            ((eq code 400) "Bad request")
            ((eq code 403) "Authentication Failed")
            (t "Unknown Response")))))
@@ -228,7 +230,8 @@
 (defun tumble-paste-url (id)
   "Adds the response URL to the kill ring"
   (let* ((last-char (substring tumble-url -1)))
-    (cond ((string= last-char "/") (kill-new (concat tumble-url id))) ; url has a trailing slash
+    (cond ((string= last-char "/") 
+           (kill-new (concat tumble-url id))) ; url has a trailing slash
           (t (kill-new (concat tumble-url (concat "/" id)))))))
 
 (defun tumble-region-text() 
