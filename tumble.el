@@ -58,6 +58,8 @@
 ;; tumble-audio-from-file 
 ;;     Prompts for a local file and an optional caption to 
 ;;     upload a MP3 file.
+;; A word of caution: Audio files can take a while to upload and will 
+;; probably freeze your Emacs until it finishes uploading.
 
 ;; Installation: 
 
@@ -85,11 +87,12 @@
 (setq load-path (cons "./vendor"  load-path))
 (require 'http-post-simple)
 
+;; Personal information
 (setq tumble-email "your_email@something.com")
 (setq tumble-password "your_password")
 (setq tumble-url "your_tumblelog.tumblr.com")
 ;; Optional information
-(setq tumble-group "")                  ; uncomment to use a group.
+(setq tumble-group "testingtumble.tumblr.com")                  ; uncomment to use a group.
 (setq tumble-format "markdown")         ; you can change this to html
 
 (defun tumble-text-from-region (min max title)
@@ -138,21 +141,23 @@
 (defun tumble-photo-from-file (filename caption url)
   "Posts a local photo to Tumblr"
   (interactive "fPhoto: \nsCaption (optional): \nsLink (optional): ")
-  (tumble-multipart-http-post 
-   (list (cons 'type "photo")
-         (cons 'caption caption)
-         (cons 'click-through-url url))
-   ;; this is an ugly and hackish way to get the 
-   ;; content-type
-   filename 
-   (format "image/%s" (file-name-extension filename))
-   (tumble-file-data filename)))
+  (let* ((request (list (cons 'type "photo")
+                        (cons 'caption caption)
+                        (cons 'click-through-url url))))
+
+  (tumble-multipart-http-post request filename
+                              ;; this is an ugly and hackish way to get the 
+                              ;; content-type
+                              (format "image/%s" (file-name-extension filename))
+                              (tumble-file-data filename))))
 
 (defun tumble-audio-from-file (filename caption)
+  "Posts an audio file to Tumblr"
   (interactive "fAudio: \nsCaption (optional): ")
-  (tumble-multipart-http-post (list (cons 'type "audio")
-                                    (cons 'caption caption))
-                              filename "audio/mpeg" (tumble-file-data filename)))
+  (let* ((request (list (cons 'type "audio")
+                        (cons 'caption caption))))
+    (tumble-multipart-http-post request filename "audio/mpeg" 
+                                (tumble-file-data filename))))
 
 (defun tumble-post-text (title body)
   "Posts a new text to a tumblelog" 
