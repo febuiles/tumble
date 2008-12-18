@@ -4,7 +4,7 @@
      
 ;; Author: Federico Builes <federico.builes@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 0.9
+;; Version: 1.0
 ;; Keywords: tumblr
      
 ;; This file is NOT part of GNU Emacs.
@@ -26,7 +26,7 @@
      
 ;;; Commentary:
 
-;; Tumble is a mode for interacting with Tumblr. It currently
+;; Tumble is a mode for interacting with Tumblr inside Emacs. It currently
 ;; provides the following functions:
 ;;
 ;; tumble-text-from-region 
@@ -55,9 +55,14 @@
 ;; tumble-photo-from-file 
 ;;     Prompts for a local file, a caption and a clickthrough and
 ;;     posts the result as a Photo.
-;; tumble-audio-from-file 
+;; tumble-audio 
 ;;     Prompts for a local file and an optional caption to 
 ;;     upload a MP3 file.
+
+;; tumble-video-from-url 
+;;     Prompts for an embed code and an optional caption to post a video
+;;     to Tumblr.
+
 ;; A word of caution: Audio files can take a while to upload and will 
 ;; probably freeze your Emacs until it finishes uploading.
 
@@ -67,7 +72,7 @@
 ;; Download Tumble to some directory:
 ;; $ git clone git://github.com/febuiles/tumble.git
 ;;
-;; Add it to your load list:
+;; Add it to your load list and require it:
 ;;
 ;; (add-to-list 'load-path "~/some_directory/tumble.el")
 ;; (require 'tumble)
@@ -151,7 +156,7 @@
                                 file-format
                                 data)))
 
-(defun tumble-audio-from-file (filename caption)
+(defun tumble-audio (filename caption)
   "Posts an audio file to Tumblr"
   (interactive "fAudio: \nsCaption (optional): ")
   (let* ((data (tumble-file-data filename))
@@ -161,6 +166,15 @@
                                 filename 
                                 "audio/mpeg" 
                                 data)))
+
+(defun tumble-video-from-url ()
+  "Uses EMBED to post a video to Tumblr"
+  (interactive)
+  ;; interactive dies with unquoted strings such as YouTube embed codes
+  ;; so we call (read-string) directly.
+  (let* ((embed (read-string "Source (embed): "))
+         (caption (read-string "Caption (optional): ")))
+    (tumble-post-video embed caption)))
 
 (defun tumble-post-text (title body)
   "Posts a new text to a tumblelog" 
@@ -191,6 +205,13 @@
          (cons 'source source)
          (cons 'caption caption)
          (cons 'click-through-url url))))
+
+(defun tumble-post-video (embed caption)
+  "Embeds a video in a tumblelog" 
+  (tumble-http-post
+   (list (cons 'type "video")
+         (cons 'embed embed)
+         (cons 'caption caption))))
 
 (defun tumble-default-headers ()
   "Generic Tumblr headers"
@@ -223,7 +244,7 @@
            ((eq code 201) 
             (tumble-paste-url (car response)) 
             "Post created" )
-           ((eq code 400) "Bad request")
+           ((eq code 400) "Bad Request")
            ((eq code 403) "Authentication Failed")
            (t "Unknown Response")))))
 

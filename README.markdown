@@ -4,8 +4,18 @@ Tumble - An Emacs mode for Tumblr
 Overview
 --------     
 
-Tumble is a mode for interacting with Tumblr. It currently
-provides the following functions:
+Tumble is a mode for interacting with Tumblr inside Emacs. It currently
+supports the following types of posts: 
+
+* Text
+* Quote
+* Link
+* Chat
+* Photo
+* Audio 
+* Video (only through embed)
+
+You can start tumbling by using the following functions:
 
     tumble-text-from-region
     tumble-text-from-buffer
@@ -21,7 +31,9 @@ provides the following functions:
     tumble-photo-from-url
     tumble-photo-from-file
 
-    tumble-audio-from-file
+    tumble-audio
+    
+    tumble-video-from-url
 
 Read tumble.el for more information about each function.
 
@@ -31,12 +43,12 @@ Download Tumble to some directory:
 
     $ git clone git://github.com/febuiles/tumble.git
 
-Add it to your load list:
+Add it to your load list and require it:
 
     (add-to-list 'load-path "~/some_directory/tumble.el")
     (require 'tumble)
 
-Open tumble.el (this file) and modify the following variables:
+Open tumble.el and modify the following variables:
 
     (setq tumble-email "your_email@something.com")
     (setq tumble-password "your_password")
@@ -48,8 +60,6 @@ format but you can change these:
     (setq tumble-group "your_group.tumblr.com")
     (setq tumble-format "html")
 
-Danger, Will Robinson!     
-This is currently under development so proceed with caution.
 
 License
 -------
