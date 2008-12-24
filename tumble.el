@@ -89,7 +89,9 @@
 
 ;;; Code:
 
-(add-to-list 'load-path "./vendor")
+(let* ((tumble-dir (file-name-directory
+                    (or (buffer-file-name) load-file-name))))
+  (add-to-list 'load-path (concat tumble-dir "/vendor")))
 (require 'http-post-simple)
 
 ;; Personal information
