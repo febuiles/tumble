@@ -4,7 +4,7 @@
      
 ;; Author: Federico Builes <federico.builes@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 1.0
+;; Version: 1.1
 ;; Keywords: tumblr
      
 ;; This file is NOT part of GNU Emacs.
