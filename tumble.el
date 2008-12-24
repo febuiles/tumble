@@ -89,7 +89,7 @@
 
 ;;; Code:
 
-(setq load-path (cons "./vendor"  load-path))
+(add-to-list 'load-path "./vendor")
 (require 'http-post-simple)
 
 ;; Personal information
