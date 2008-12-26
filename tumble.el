@@ -66,6 +66,8 @@
 ;; A word of caution: Audio files can take a while to upload and will 
 ;; probably freeze your Emacs until it finishes uploading.
 
+;; You can always find the latest version of Tumble at: http://github.com/febuiles/tumble
+
 ;; Installation: 
 
 ;;
@@ -102,16 +104,19 @@
 (setq tumble-group "")                  ; uncomment to use a group.
 (setq tumble-format "markdown")         ; you can change this to html
 
+;;;###autoload
 (defun tumble-text-from-region (min max title)
   "Post the current region as a text in Tumblr"
   (interactive "r \nsTitle: ")
   (tumble-post-text title (tumble-region-text)))
 
+;;;###autoload
 (defun tumble-text-from-buffer (title)
   "Post the current buffer as a text in Tumblr"
   (interactive "sTitle: ")
   (tumble-text-from-region (point-min) (point-max) title))
 
+;;;###autoload
 (defun tumble-quote-from-region (min max source)
   "Post a region as a quote in Tumblr"
   (interactive "r \nsSource (optional): " )
@@ -120,31 +125,37 @@
          (cons 'quote (tumble-region-text))
          (cons 'source source))))
 
+;;;###autoload
 (defun tumble-link-with-description (min max name url)
   "Posts a Tumblr link using the region as the description"
   (interactive "r \nsName (optional): \nsLink: ")
   (tumble-post-link name url (tumble-region-text)))
 
+;;;###autoload
 (defun tumble-link (name url)
   "Posts a Tumblr link without description"
   (interactive "sName (optional): \nsLink: ")
   (tumble-post-link name url ""))
 
+;;;###autoload
 (defun tumble-chat-from-region (min max title)
   "Posts a chat to Tumblr using the current region"
   (interactive "r \nsTitle (optional): ")
   (tumble-post-chat title (tumble-region-text)))
 
+;;;###autoload
 (defun tumble-chat-from-buffer (title)
   "Posts a chat to Tumblr using the current buffer"
   (interactive "sTitle (optional): ")
   (tumble-chat-from-region (point-min) (point-max) title))
 
+;;;###autoload
 (defun tumble-photo-from-url (source caption url)
   "Posts a photo to Tumblr using an URL as the source"
   (interactive "sURL: \nsCaption (optional): \nsLink (optional): ")
   (tumble-post-photo source caption url))
 
+;;;###autoload
 (defun tumble-photo-from-file (filename caption url)
   "Posts a local photo to Tumblr"
   (interactive "fPhoto: \nsCaption (optional): \nsLink (optional): ")
@@ -158,6 +169,7 @@
                                 file-format
                                 data)))
 
+;;;###autoload
 (defun tumble-audio (filename caption)
   "Posts an audio file to Tumblr"
   (interactive "fAudio: \nsCaption (optional): ")
@@ -169,6 +181,7 @@
                                 "audio/mpeg" 
                                 data)))
 
+;;;###autoload
 (defun tumble-video-from-url ()
   "Uses EMBED to post a video to Tumblr"
   (interactive)
