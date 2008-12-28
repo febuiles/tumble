@@ -1,4 +1,4 @@
-;;; tumble.el --- an Emacs mode for Tumblr
+;;; tumble.el --- an Tumblr mode for Emacs
      
 ;; Copyright (C) 2008 Federico Builes
      
