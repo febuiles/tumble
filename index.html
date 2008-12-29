@@ -20,11 +20,12 @@
 
       div.content {
       background-color: white;
-      margin: 50px;
       width: 800px;
-
+      margin: 50px;
       padding: 15px;
       padding-top: 30px;
+      margin-bottom: 0px;
+      padding-bottom: 30px;
       }
 
       div.content p {
@@ -39,6 +40,28 @@
       text-align: justify;
       }
 
+      div.footer { 
+      background-color: black;
+      width: 831px;
+      margin: -10px;
+      padding-top: 3px;
+      margin-left: 50px;
+      text-align: center;
+      height: 25px;
+
+      }
+
+      div.footer a {
+      color: white;
+      font-size: 12px;
+      font-weight: normal;
+      }
+
+      div.footer a:hover {
+      text-decoration: none;
+      }
+
+
       h1 {
       color: #666;
       font-weight: normal;
@@ -52,6 +75,7 @@
       font-weight: normal;
       font-size: 28px;
       letter-spacing: -1px;
+      margin-top: 50px;
       }
 
       h3 {
@@ -61,6 +85,17 @@
       letter-spacing: -1px;
       }
 
+
+      code {
+      font-weight: bold;
+      }
+
+      pre {
+      /* reset */
+      margin: 0;
+      padding: 0;
+      margin-top: 15px;
+      }
 
       a {
       color: #44A3E2;
@@ -72,6 +107,9 @@
       background-color: #44A3E2;
       color: white;
       }
+
+
+      a.footer_link { margin: 20px; }
 
     </style>
 
@@ -93,8 +131,7 @@
       <a name="overview">
         <h2>Overview</h2>
       </a>
-      <p>Tumble is a simple Emacs mode for communicating
-        with <a href="http://tumblr.com">Tumblr</a>. It supports the
+      <p>Tumble is an Emacs mode to upload your posts to <a href="http://tumblr.com">Tumblr</a>. It supports the
         following types of posts:</p>
       <ul>
         <li>Text</li>
@@ -106,10 +143,10 @@
         <li>Video</li>
       </ul>
       <p>
-        Video uploads are only available through embed links. I have not
-        written support for Vimeo uploads since I've never actually used it,
-        but if you consider that it's necessary I'm sure we can set it
-        up, just write me at <a href="mailto:federico.builes@gmail.com">federico.builes@gmail.com</a>.
+        Note: Video uploads are only available through embed links. I does not
+         support Vimeo uploads since I've never actually used it.
+        If you want to do something about it, I'll be happy to provide
+        help or apply patches, just write me at <a href="mailto:federico.builes@gmail.com">federico.builes@gmail.com</a>.
       </p>
 
       <a name="installing">
@@ -152,7 +189,7 @@
           (require 'tumble)
         </pre>
 
-        Open tumble.el and modify the following variables:
+        Open <code>tumble.el</code> and modify the following variables:
 
         <pre>
           (setq tumble-email "your_email@something.com")
@@ -175,14 +212,102 @@
         <h2>Using</h2>
       </a>
 
+      <p>Tumble provides the following functions to upload your posts:</p>
+
+      <h3>Texts</h3>
+      
+      <p>
+        <code>tumble-text-from-region</code>
+        <br /> 
+        Uploads the current selected region as a new text post.
+      </p>
+
+      <p>
+        <code>tumble-text-from-buffer</code>
+        <br />
+        Uploads the current buffer as a new text post.
+      </p>
+
+      <p>Note: Remember that Tumble defaults the composition mode to
+      "Markdown" so watch out for formatting</p>
+
+      <h3>Quotes</h3>
+
+      <p>
+        <code>tumble-quote-from-region</code>
+        <br />
+        Uploads the current region as a new quote post.
+      </p>
+
+      <h3>Links</h3>
+
+      <p>
+        <code>tumble-link</code>
+        <br />
+        Creates a new link post with an optional title.
+      </p>
+
+      <p>
+        <code>tumble-link-with-description</code>
+        <br />
+        Uses the region to create the description for a new link post. Title
+        is optional.
+      </p>
+
+      <h3>Chats</h3>
+
+      <p>
+        <code>tumble-chat-from-region</code>
+        <br />
+        Uploads the current region as a new chat post.
+      </p>
+
+      <p>
+        <code>tumble-chat-from-buffer</code>
+        <br />
+        Uploads the current buffer contents as a new chat post.
+      </p>
+
+      <h3>Photos</h3>
+
+      <p>
+        <code>tumble-photo-from-url</code>
+        <br />
+        Creates a new photo post using the source URL as the image to display.
+      </p>
+
+      <p>
+        <code>tumble-photo-from-file</code>
+        <br />
+        Creates a new photo post using a local file as the image to display.
+      </p>
+
+      <h3>Songs</h3>
+
+      <p>
+        <code>tumble-audio</code>
+        <br />
+        Uploads a song and creates a new audio post.
+      </p>
+
+      <p>Note: Remember that Tumblr has a limit for daily audio uploads.
+
+      <h3>Videos</h3>
+
+      <p>
+        <code>tumble-video-from-url</code>
+        <br />
+        Uses the video from the source given to create a new video post.
+      </p>
 
 
-  <a name="acknowledgments">
+
+      <a name="acknowledgments">
         <h2>Acknowledgements</h2>
       </a>
       <p>
         Tumble is inspired
-        by <a href="http://www.emacswiki.org/emacs/Tumbl">Tumble</a>, created
+        by <a href="http://www.emacswiki.org/emacs/Tumbl">Tumbl</a>, created
         by Carl Groner.
       </p>
       <p>
@@ -215,12 +340,13 @@
         Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
         Boston, MA 02110-1301 USA.
       </p>
-
-
-
     </div>
 
-
-
+      <div class="footer">
+        <a href="http://febuiles.com" class="footer_link">Home</a>
+        <a href="http://github.com/febuiles" class="footer_link">More Projects</a>
+        <a href="mailto:federico.builes@gmail.com" class="footer_link">Contact</a>
+        <p>Copyright 2008 Federico Builes</p>
+      </div>
   </body>
 </html>
