@@ -1,6 +1,8 @@
 Tumble - An Emacs mode for Tumblr
 ========================
 
+Please visit [the project page](http://febuiles.github.com/tumble/) for in-depth installation and usage instructions.
+
 Overview
 --------     
 
