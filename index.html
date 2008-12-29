@@ -1,1 +1,186 @@
-My GitHub Page
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>tumble - a Tumblr Mode for Emacs</title>
+
+    <style type="text/css">
+      body {
+      font: Normal 16px Helvetica, sans-serif;
+      background-color: #222;
+      color: #777;
+      font-size: 13px;
+      line-height: 18px;
+      padding-right: 70px;
+      margin-bottom: 30px;
+
+      }
+
+      div.content {
+      background-color: white;
+      margin: 50px;
+      width: 800px;
+
+      padding: 15px;
+      padding-top: 30px;
+      }
+
+      div.content p {
+      width: 600px;
+      text-align: justify;
+      }
+
+      h1 {
+      color: #666;
+      font-weight: normal;
+      font-size: 48px;
+      letter-spacing: -1px;
+      text-decoration: underline;
+      }
+
+      h2 {
+      color: #666;
+      font-weight: normal;
+      font-size: 28px;
+      letter-spacing: -1px;
+      }
+
+      h3 {
+      color: #666;
+      font-weight: normal;
+      font-size: 18px;
+      letter-spacing: -1px;
+      }
+
+
+      a {
+      color: #44A3E2;
+      font-size: 13px;
+      font-weight: bold;
+      }
+
+      ol a:hover {
+      background-color: #44A3E2;
+      color: white;
+      }
+
+    </style>
+
+
+  </head>
+  <body>
+    
+    <div class="content">
+      <h1>tumble</h1>
+      <p>A Tumblr Mode for Emacs</p>
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#installing">Installing</a></li>
+        <li><a href="#using">Using</a></li>
+        <li><a href="#license">License</a></li>
+        <li><a href="#acknowledgments">Acknowledgments</a></li>
+      </ol>
+      
+      <a name="overview">
+        <h2>Overview</h2>
+      </a>
+      <p>Tumble is a simple Emacs mode for communicating
+        with <a href="http://tumblr.com">Tumblr</a>. It supports the
+        following types of posts:</p>
+      <ul>
+        <li>Text</li>
+        <li>Quote</li>
+        <li>Link</li>
+        <li>Chat</li>
+        <li>Photo</li>
+        <li>Audio</li>
+        <li>Video</li>
+      </ul>
+      <p>
+        Video uploads are only available through embed links. I have not
+        written support for Vimeo uploads since I've never actually used it,
+        but if you consider that it's necessary I'm sure we can set it
+        up, just write me at <a href="mailto:federico.builes@gmail.com">federico.builes@gmail.com</a>.
+      </p>
+
+      <a name="installing">
+        <h2>Installing</h2>
+      </a>
+
+      <h3>ELPA</h3>
+      <p> Tumble is included in
+        Emacs <a href="http://tromey.com/elpa">ELPA</a>. You can
+        install it by doing:
+        <pre>
+          M-x package-install        ;; the package is named "tumble"
+        </pre>
+
+        Alternatively you can browse all the packages and select it from the
+        list: 
+        <pre>
+          M-x package-list
+        </pre>
+      </p>
+
+      <h3>Regular Installation</h3>
+
+      <p>
+        Download
+        the  <a href="http://github.com/febuiles/tumble/zipball/master">compressed file
+        </a> and extract it to your preferred directory.</p>
+
+      <p>
+        You can also clone it from Github:
+        
+        <pre>
+          $ git clone git://github.com/febuiles/tumble.git
+        </pre>
+
+        This should create a 'tumble' directory. Add it to your load list and require it:
+
+        <pre>
+          (add-to-list 'load-path "~/some_directory/tumble")
+          (require 'tumble)
+        </pre>
+
+        Open tumble.el and modify the following variables:
+
+        <pre>
+          (setq tumble-email "your_email@something.com")
+          (setq tumble-password "your_password")
+          (setq tumble-url "your_tumblelog.tumblr.com")
+        </pre>
+
+        (optional) Tumble uses no group for posting and Markdown as the default 
+        format but you can change these:
+
+        <pre>
+          (setq tumble-group "your_group.tumblr.com")
+          (setq tumble-format "html")
+        </pre>
+
+        You're all set.
+      </p> 
+
+      <a name="using">
+        <h2>Using</h2>
+      </a>
+
+      <a name="license">
+        <h2>License</h2>
+      </a>
+
+      <a name="acknowledgments">
+        <h2>Acknowledgements</h2>
+      </a>
+
+
+
+    </div>
+
+
+
+  </body>
+</html>
