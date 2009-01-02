@@ -126,9 +126,9 @@
         <li><a href="#license">License</a></li>
       </ol>
       
-      <a name="overview">
+      <a name="overview"></a>
         <h2>Overview</h2>
-      </a>
+
       <p>Tumble is an Emacs mode to upload your posts to <a href="http://tumblr.com">Tumblr</a>. It supports the
         following types of posts:</p>
       <ul>
@@ -147,24 +147,23 @@
         help or apply patches, just write me at <a href="mailto:federico.builes@gmail.com">federico.builes@gmail.com</a>.
       </p>
 
-      <a name="installing">
+      <a name="installing"></a>
         <h2>Installing</h2>
-      </a>
+
 
       <h3>ELPA</h3>
       <p> Tumble is included in
         Emacs <a href="http://tromey.com/elpa">ELPA</a>. You can
-        install it by doing:
+        install it by doing:</p>
         <pre>
           M-x package-install        ;; the package is named "tumble"
         </pre>
 
-        Alternatively you can browse all the packages and select it from the
-        list: 
+        <p>Alternatively you can browse all the packages and select it from the
+        list: </p>
         <pre>
           M-x package-list
         </pre>
-      </p>
 
       <h3>Regular Installation</h3>
 
@@ -173,21 +172,20 @@
         the  <a href="http://github.com/febuiles/tumble/zipball/master">compressed file
         </a> and extract it to your preferred directory.</p>
 
-      <p>
-        You can also clone it from Github:
+      <p>You can also clone it from Github:</p>
         
         <pre>
           $ git clone git://github.com/febuiles/tumble.git
         </pre>
 
-        This should create a 'tumble' directory. Add it to your load list and require it:
+        <p>This should create a 'tumble' directory. Add it to your load list and require it:</p>
 
         <pre>
           (add-to-list 'load-path "~/some_directory/tumble")
           (require 'tumble)
         </pre>
 
-        Open <code>tumble.el</code> and modify the following variables:
+        <p>Open <code>tumble.el</code> and modify the following variables:</p>
 
         <pre>
           (setq tumble-email "your_email@something.com")
@@ -195,20 +193,18 @@
           (setq tumble-url "your_tumblelog.tumblr.com")
         </pre>
 
-        (optional) Tumble uses no group for posting and Markdown as the default 
-        format but you can change these:
-
+<p>(optional) Tumble uses no group for posting and Markdown as the default 
+        format but you can change these:</p>
         <pre>
           (setq tumble-group "your_group.tumblr.com")
           (setq tumble-format "html")
         </pre>
 
-        You're all set.
-      </p> 
+        <p>You're all set.</p> 
 
-      <a name="using">
+      <a name="using"></a>
         <h2>Using</h2>
-      </a>
+
 
       <p>Tumble provides the following functions to upload your posts:</p>
 
@@ -288,7 +284,7 @@
         Uploads a song and creates a new audio post.
       </p>
 
-      <p>Note: Remember that Tumblr has a limit for daily audio uploads.
+      <p>Note: Remember that Tumblr has a limit for daily audio uploads.</p>
 
         <h3>Videos</h3>
 
@@ -300,9 +296,9 @@
 
 
 
-      <a name="acknowledgments">
+      <a name="acknowledgments"></a>
         <h2>Acknowledgements</h2>
-      </a>
+
       <p>
         Tumble is inspired
         by <a href="http://www.emacswiki.org/emacs/Tumbl">Tumbl</a>, created
@@ -314,9 +310,9 @@
         library, written by Tom Schutzer-Weissmann.
       </p>
       
-      <a name="license">
+      <a name="license"></a>
         <h2>License</h2>
-      </a>
+
 
       <p class="license">
         This program is free software; you can redistribute it and/or
