@@ -110,7 +110,7 @@
       a.footer_link { margin: 20px; }
 
     </style>
-
+<script src="http://colors.febuiles.com/colors.js" type="text/javascript"/>
 
   </head>
   <body>
@@ -155,13 +155,13 @@
       <p> Tumble is included in
         Emacs <a href="http://tromey.com/elpa">ELPA</a>. You can
         install it by doing:</p>
-        <pre>
+        <pre id="cl_1">
           M-x package-install        ;; the package is named "tumble"
         </pre>
 
         <p>Alternatively you can browse all the packages and select it from the
         list: </p>
-        <pre>
+        <pre id="cl_2">
           M-x package-list
         </pre>
 
@@ -180,14 +180,14 @@
 
         <p>This should create a 'tumble' directory. Add it to your load list and require it:</p>
 
-        <pre>
+        <pre id="cl_3">
           (add-to-list 'load-path "~/some_directory/tumble")
           (require 'tumble)
         </pre>
 
         <p>Open <code>tumble.el</code> and modify the following variables:</p>
 
-        <pre>
+        <pre id="cl_4">
           (setq tumble-email "your_email@something.com")
           (setq tumble-password "your_password")
           (setq tumble-url "your_tumblelog.tumblr.com")
@@ -195,7 +195,7 @@
 
 <p>(optional) Tumble uses no group for posting and Markdown as the default 
         format but you can change these:</p>
-        <pre>
+        <pre id="cl_5">
           (setq tumble-group "your_group.tumblr.com")
           (setq tumble-format "html")
         </pre>
