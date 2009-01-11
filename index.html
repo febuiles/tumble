@@ -129,8 +129,8 @@
       <a name="overview"></a>
         <h2>Overview</h2>
 
-      <p>Tumble is an Emacs mode to upload your posts to <a href="http://tumblr.com">Tumblr</a>. It supports the
-        following types of posts:</p>
+      <p>Tumble is an Emacs mode to upload your posts
+      to <a href="http://tumblr.com">Tumblr</a>. It supports these posts:</p>
       <ul>
         <li>Text</li>
         <li>Quote</li>
@@ -141,10 +141,9 @@
         <li>Video</li>
       </ul>
       <p>
-        Note: Video uploads are only available through embed links. I does not
-        support Vimeo uploads since I've never actually used it.
-        If you want to do something about it, I'll be happy to provide
-        help or apply patches, just write me at <a href="mailto:federico.builes@gmail.com">federico.builes@gmail.com</a>.
+        Note: Video uploads are only available through embed links. I've
+        never used Vimeo uploads so it's not currently supported.
+        I can help you writing a patch for this, just contact me at <a href="mailto:federico.builes@gmail.com">federico.builes@gmail.com</a>.
       </p>
 
       <a name="installing"></a>
@@ -159,7 +158,7 @@
           M-x package-install        ;; the package is named "tumble"
         </pre>
 
-        <p>Alternatively you can browse all the packages and select it from the
+        <p>Alternatively, you can browse all the packages and select it from the
         list: </p>
         <pre id="cl_2">
           M-x package-list
@@ -193,14 +192,12 @@
           (setq tumble-url "your_tumblelog.tumblr.com")
         </pre>
 
-<p>(optional) Tumble uses no group for posting and Markdown as the default 
+<p>(optional) Tumble uses no group for posting and it uses Markdown as the default 
         format but you can change these:</p>
         <pre id="cl_5">
           (setq tumble-group "your_group.tumblr.com")
           (setq tumble-format "html")
         </pre>
-
-        <p>You're all set.</p> 
 
       <a name="using"></a>
         <h2>Using</h2>
