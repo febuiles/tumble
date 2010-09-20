@@ -50,17 +50,27 @@ Add it to your load list and require it:
     (add-to-list 'load-path "~/some_directory/tumble")
     (require 'tumble)
 
-Open tumble.el and modify the following variables:
+At this point you can, either set your Tubmblr account info on your
+.emacs file:
 
-    (setq tumble-email "your_email@something.com")
-    (setq tumble-password "your_password")
-    (setq tumble-url "your_tumblelog.tumblr.com")
+    tumble-email:    your account e-mail
+    tumble-password: your account password
+    tumble-url:      your account url (the main blog url)
+    
+Or just post without setting them, Tumble will prompt you for your
+account details when you try to make a post.
+    
+If you want to post to a group or secondary blog, you should instead
+set the `tumble-group` variable.
 
-(optional) Tumble uses no group for posting and Markdown as the default 
-format but you can change these:
+You can also customize the format of the post by modifying the
+`tumble-format` variable. Tumble uses Markdown as default for posting.
 
-    (setq tumble-group "your_group.tumblr.com")
-    (setq tumble-format "html")
+Tumble uses https when posting. This is certainly more secure than
+using http, but also slower. If you want to send your passwords as
+plain text over http you can just change the `tumble-api-url`
+variable. It's `https://www.tumblr.com/api/write` by default, just
+change the `https` part by `http` if you want to :3
 
 
 License
@@ -74,3 +84,20 @@ version.
 Check tumble.el for more information.
 
 Fork freely!
+
+
+Acknowledgements
+----------------
+
+This is my fork of Frederico Builes' Tumble-mode, mostly because I
+don't like storing my passwords in plain text files. So, most of the
+work done here is actually his :3
+
+I should also note that this was the very first thing I've written in
+Emacs-lisp, so if there's anything downright outrageous in the file,
+I'm really sorry ;-;
+
+I'd be really grateful if you could point my mistakes so I can learn
+from them (and fix them), tho :3
+
+kthxbye.

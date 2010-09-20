@@ -72,7 +72,7 @@
 
 ;;
 ;; Download Tumble to some directory:
-;; $ git clone git://github.com/febuiles/tumble.git
+;; $ git clone git://github.com/killdream/tumble.git
 ;;
 ;; Add it to your load list and require it:
 ;;
@@ -88,21 +88,73 @@
 ;; format but you can change these:
 ;; (setq tumble-group "your_group.tumblr.com")
 ;; (setq tumble-format "html")
+;;
+;; Alternatively, you can use M-x tumble-login to be prompted for your login
+;; info (and avoid storing them in text files). It'll also prompt you to enter
+;; your login info if you try to post without setting them.
 
 ;;; Code:
 
+;; ----------------------------------------------------------------------------
+;; Prompts and checks for user info instead of saving it on a file
+;; Author: Quildreen <quildreen@gmail.com>
+;;
+;; Note that I don't have much knowledge on Lisp, so if you see anything
+;; outrageous, sorry. You could point it so I can fix stuff and learn though :3
+;; ----------------------------------------------------------------------------
+(defun tumble-login ()
+  "Prompts the user for his Tumblr info.
+
+Group blog url is only needed when you don't want to post to your main blog."
+  (interactive)
+  (tumble-get "email" t)
+  (tumble-get "pass"  t)
+  (tumble-get "url"   t)
+  (tumble-get "group" t))
+
+
+(defun tumble-get (name force)
+  "Returns the required info"
+  (cond ((string= name "email")
+	 (if (or (string= tumble-email "") (equal force t))
+	     (setq tumble-email (read-from-minibuffer "E-Mail: " tumble-email))
+	     tumble-email))
+
+	((string= name "pass")
+	 (if (or (string= tumble-password "") (equal force t))
+	     (setq tumble-password (read-passwd "Password: " nil))
+	     tumble-password))
+
+	((string= name "url")
+	 (if (or (string= tumble-url "") (equal force t))
+	     (setq tumble-url (read-from-minibuffer "Blog url: " tumble-url))
+	     tumble-url))
+
+	((string= name "group")
+	 (if (or (string= tumble-group "") (equal force t))
+	     (setq tumble-group (read-from-minibuffer "Group blog url: "
+	                         tumble-group))
+	     tumble-group))))
+	
+
+
+;; ----------------------------------------------------------------------------
+;; Original file by Frederico Builes (with a few mods)
+;; ----------------------------------------------------------------------------
 (let* ((tumble-dir (file-name-directory
                     (or (buffer-file-name) load-file-name))))
   (add-to-list 'load-path (concat tumble-dir "/vendor")))
 (require 'http-post-simple)
 
 ;; Personal information
-(setq tumble-email "your_email@something.com")
-(setq tumble-password "your_password")
-(setq tumble-url "your_tumblelog.tumblr.com")
+(setq tumble-email    "")
+(setq tumble-password "")
+(setq tumble-url      "")
+
 ;; Optional information
-(setq tumble-group "")                  ; uncomment to use a group.
-(setq tumble-format "markdown")         ; you can change this to html
+(setq tumble-group   "")                 ; uncomment to use a group.
+(setq tumble-format  "markdown")         ; you can change this to html
+(setq tumble-api-url "https://www.tumblr.com/api/write")
 
 ;;;###autoload
 (defun tumble-text-from-region (min max title)
@@ -230,25 +282,27 @@
 
 (defun tumble-default-headers ()
   "Generic Tumblr headers"
-  (list (cons 'email tumble-email) 
-        (cons 'password tumble-password)
-        (cons 'format tumble-format)
+  (list (cons 'email     (tumble-get "email" nil)) 
+        (cons 'password  (tumble-get "pass" nil))
+        (cons 'format    tumble-format)
         (cons 'generator "tumble.el")
-        (cons 'group tumble-group)))
+        (cons 'group     (tumble-get "group" nil))))
+
 
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
-  (let* ((resp (http-post-simple "http://www.tumblr.com/api/write" 
+  (let* ((resp (http-post-simple tumble-api-url 
                                  (append (tumble-default-headers) request))))
     (tumble-process-response resp)))
 
 (defun tumble-multipart-http-post (request filename mime data)
   "Multipart POST used to upload files to Tumblr"
-  (let* ((resp (http-post-simple-multipart "http://www.tumblr.com/api/write" 
+  (let* ((resp (http-post-simple-multipart tumble-api-url 
                                            (append (tumble-default-headers)
                                                    request)
                                            (list (list "data" filename mime data)))))
     (tumble-process-response resp)))
+
 
 ;; RESPONSE is a simple http response list with (url response code)
 (defun tumble-process-response (response)
