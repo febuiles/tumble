@@ -1,74 +1,76 @@
 ;;; tumble.el --- an Tumblr mode for Emacs
-     
+
 ;; Copyright (C) 2008 Federico Builes
-     
+
 ;; Author: Federico Builes <federico.builes@gmail.com>
+;; Contributors:
+;; Quildreen Motta <quildreen@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 1.1
+;; Version: 1.2
 ;; Keywords: tumblr
-     
+
 ;; This file is NOT part of GNU Emacs.
-       
+
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
 ;; published by the Free Software Foundation; either version 2 of
 ;; the License, or (at your option) any later version.
-          
+
 ;; This program is distributed in the hope that it will be
 ;; useful, but WITHOUT ANY WARRANTY; without even the implied
 ;; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 ;; PURPOSE.  See the GNU General Public License for more details.
-          
+
 ;; You should have received a copy of the GNU General Public
 ;; License along with this program; if not, write to the Free
 ;; Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301 USA
-     
+
 ;;; Commentary:
 
 ;; Tumble is a mode for interacting with Tumblr inside Emacs. It currently
 ;; provides the following functions:
 ;;
-;; tumble-text-from-region 
+;; tumble-text-from-region
 ;;     Posts the selected region as a "Text".
-;; tumble-text-from-buffer 
+;; tumble-text-from-buffer
 ;;     Posts the current buffer as a "Text".
 
-;; tumble-quote-from-region 
+;; tumble-quote-from-region
 ;;     Posts the current region as a "Quote". Prompts
 ;;     for an optional "source" parameter.
 
-;; tumble-link 
+;; tumble-link
 ;;     Prompts for a title and a URL for a new "Link".
-;; tumble-link-with-description 
+;; tumble-link-with-description
 ;;     Prompts for a title and a URL for a new "Link" and
 ;;     uses the selected region as the link's description.
 
-;; tumble-chat-from-region 
+;; tumble-chat-from-region
 ;;     Posts the selected region as a "Chat".
-;; tumble-chat-from-buffer 
+;; tumble-chat-from-buffer
 ;;     Posts the current buffer as a "Chat".
 
-;; tumble-photo-from-url 
+;; tumble-photo-from-url
 ;;     Prompts for a file URL, a caption and a clickthrough and
 ;;     posts the result as a "Photo".
-;; tumble-photo-from-file 
+;; tumble-photo-from-file
 ;;     Prompts for a local file, a caption and a clickthrough and
 ;;     posts the result as a Photo.
-;; tumble-audio 
-;;     Prompts for a local file and an optional caption to 
+;; tumble-audio
+;;     Prompts for a local file and an optional caption to
 ;;     upload a MP3 file.
 
-;; tumble-video-from-url 
+;; tumble-video-from-url
 ;;     Prompts for an embed code and an optional caption to post a video
 ;;     to Tumblr.
 
-;; A word of caution: Audio files can take a while to upload and will 
+;; A word of caution: Audio files can take a while to upload and will
 ;; probably freeze your Emacs until it finishes uploading.
 
 ;; You can always find the latest version of Tumble at: http://github.com/febuiles/tumble
 
-;; Installation: 
+;; Installation:
 
 ;;
 ;; Download Tumble to some directory:
@@ -79,82 +81,53 @@
 ;; (add-to-list 'load-path "~/some_directory/tumble")
 ;; (require 'tumble)
 ;;
+;; Optional:
+;;
 ;; Open tumble.el (this file) and modify the following variables:
 ;; (setq tumble-email "your_email@something.com")
 ;; (setq tumble-password "your_password")
 ;; (setq tumble-url "your_tumblelog.tumblr.com")
-;; 
-;; Tumble uses no group for posting and Markdown as the default 
+;;
+;; Tumble uses no group for posting and Markdown as the default
 ;; format but you can change these:
 ;; (setq tumble-group "your_group.tumblr.com")
 ;; (setq tumble-format "html")
 ;;
-;; Alternatively, you can use M-x tumble-login to be prompted for your login
-;; info (and avoid storing them in text files). It'll also prompt you to enter
-;; your login info if you try to post without setting them.
+;; You can also reset the Tumblr login credentials by calling:
+;;
+;;     tumble-reset-credentials
 
 ;;; Code:
-
-;; ----------------------------------------------------------------------------
-;; Prompts and checks for user info instead of saving it on a file
-;; Author: Quildreen <quildreen@gmail.com>
-;;
-;; Note that I don't have much knowledge on Lisp, so if you see anything
-;; outrageous, sorry. You could point it so I can fix stuff and learn though :3
-;; ----------------------------------------------------------------------------
-(defun tumble-login ()
-  "Prompts the user for his Tumblr info.
-
-Group blog url is only needed when you don't want to post to your main blog."
-  (interactive)
-  (tumble-get "email" t)
-  (tumble-get "pass"  t)
-  (tumble-get "url"   t)
-  (tumble-get "group" t))
-
-
-(defun tumble-get (name force)
-  "Returns the required info"
-  (cond ((string= name "email")
-	 (if (or (string= tumble-email "") (equal force t))
-	     (setq tumble-email (read-from-minibuffer "E-Mail: " tumble-email))
-	     tumble-email))
-
-	((string= name "pass")
-	 (if (or (string= tumble-password "") (equal force t))
-	     (setq tumble-password (read-passwd "Password: " nil))
-	     tumble-password))
-
-	((string= name "url")
-	 (if (or (string= tumble-url "") (equal force t))
-	     (setq tumble-url (read-from-minibuffer "Blog url: " tumble-url))
-	     tumble-url))
-
-	((string= name "group")
-	 (if (or (string= tumble-group "") (equal force t))
-	     (setq tumble-group (read-from-minibuffer "Group blog url: "
-	                         tumble-group))
-	     tumble-group))))
-	
-
-
-;; ----------------------------------------------------------------------------
-;; Original file by Frederico Builes (with a few mods)
-;; ----------------------------------------------------------------------------
 (let* ((tumble-dir (file-name-directory
                     (or (buffer-file-name) load-file-name))))
   (add-to-list 'load-path (concat tumble-dir "/vendor")))
 (require 'http-post-simple)
 
 ;; Personal information
-(setq tumble-email    "")
-(setq tumble-password "")
-(setq tumble-url      "")
+(setq tumble-email nil)
+(setq tumble-password nil)
+(setq tumble-url nil)
 
 ;; Optional information
-(setq tumble-group   "")                 ; uncomment to use a group.
-(setq tumble-format  "markdown")         ; you can change this to html
+(setq tumble-group nil)                      ; uncomment to use a group.
+(setq tumble-format  "markdown")            ; you can change this to html
 (setq tumble-api-url "https://www.tumblr.com/api/write")
+
+(defun tumble-login ()
+  "Ask the user for his Tumblr credentials"
+  (interactive)
+  (setq tumble-email (or tumble-email (read-string "Email: ")))
+  (setq tumble-password (or tumble-password (read-passwd "Password: ")))
+  (setq tumble-group (or tumble-group (read-string "Group (optional): ")))
+  (setq tumble-url (or tumble-url (read-string "URL: "))))
+
+(defun tumble-reset-credentials ()
+  (interactive)
+  "Reset the Tumblr login credentials"
+  (setq tumble-email nil)
+  (setq tumble-password nil)
+  (setq tumble-url nil)
+  (setq tumble-group nil))
 
 ;;;###autoload
 (defun tumble-text-from-region (min max title)
@@ -216,7 +189,7 @@ Group blog url is only needed when you don't want to post to your main blog."
          (request (list (cons 'type "photo")
                         (cons 'caption caption)
                         (cons 'click-through-url url))))
-    (tumble-multipart-http-post request 
+    (tumble-multipart-http-post request
                                 filename
                                 file-format
                                 data)))
@@ -228,9 +201,9 @@ Group blog url is only needed when you don't want to post to your main blog."
   (let* ((data (tumble-file-data filename))
          (request (list (cons 'type "audio")
                         (cons 'caption caption))))
-    (tumble-multipart-http-post request 
-                                filename 
-                                "audio/mpeg" 
+    (tumble-multipart-http-post request
+                                filename
+                                "audio/mpeg"
                                 data)))
 
 ;;;###autoload
@@ -244,8 +217,8 @@ Group blog url is only needed when you don't want to post to your main blog."
     (tumble-post-video embed caption)))
 
 (defun tumble-post-text (title body)
-  "Posts a new text to a tumblelog" 
-  (tumble-http-post 
+  "Posts a new text to a tumblelog"
+  (tumble-http-post
    (list (cons 'type "regular")
          (cons 'title title)
          (cons 'body body))))
@@ -274,7 +247,7 @@ Group blog url is only needed when you don't want to post to your main blog."
          (cons 'click-through-url url))))
 
 (defun tumble-post-video (embed caption)
-  "Embeds a video in a tumblelog" 
+  "Embeds a video in a tumblelog"
   (tumble-http-post
    (list (cons 'type "video")
          (cons 'embed embed)
@@ -282,22 +255,23 @@ Group blog url is only needed when you don't want to post to your main blog."
 
 (defun tumble-default-headers ()
   "Generic Tumblr headers"
-  (list (cons 'email     (tumble-get "email" nil)) 
-        (cons 'password  (tumble-get "pass" nil))
+  (if (or (not tumble-email) (not tumble-password) (not tumble-group))
+      (tumble-login))
+  (list (cons 'email     tumble-email)
+        (cons 'password  tumble-password)
         (cons 'format    tumble-format)
         (cons 'generator "tumble.el")
-        (cons 'group     (tumble-get "group" nil))))
-
+        (cons 'group     tumble-group)))
 
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
-  (let* ((resp (http-post-simple tumble-api-url 
+  (let* ((resp (http-post-simple tumble-api-url
                                  (append (tumble-default-headers) request))))
     (tumble-process-response resp)))
 
 (defun tumble-multipart-http-post (request filename mime data)
   "Multipart POST used to upload files to Tumblr"
-  (let* ((resp (http-post-simple-multipart tumble-api-url 
+  (let* ((resp (http-post-simple-multipart tumble-api-url
                                            (append (tumble-default-headers)
                                                    request)
                                            (list (list "data" filename mime data)))))
@@ -307,11 +281,11 @@ Group blog url is only needed when you don't want to post to your main blog."
 ;; RESPONSE is a simple http response list with (url response code)
 (defun tumble-process-response (response)
   "Returns a message based on the response code"
-  (let* ((code (third response)))       ; 
+  (let* ((code (third response)))       ;
     (message
      (cond ((eq code 200) "No post created")
-           ((eq code 201) 
-            (tumble-paste-url (car response)) 
+           ((eq code 201)
+            (tumble-paste-url (car response))
             "Post created" )
            ((eq code 400) "Bad Request")
            ((eq code 403) "Authentication Failed")
@@ -320,11 +294,11 @@ Group blog url is only needed when you don't want to post to your main blog."
 (defun tumble-paste-url (id)
   "Adds the response URL to the kill ring"
   (let* ((last-char (substring tumble-url -1)))
-    (cond ((string= last-char "/") 
+    (cond ((string= last-char "/")
            (kill-new (concat tumble-url id))) ; url has a trailing slash
           (t (kill-new (concat tumble-url (concat "/" id)))))))
 
-(defun tumble-region-text() 
+(defun tumble-region-text()
   "Returns the text of the region inside an (interactive 'r') function"
   (buffer-substring-no-properties min max))
 
