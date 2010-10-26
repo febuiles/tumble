@@ -95,3 +95,5 @@ Acknowledgements
 
 * Tumble now prompts you for login credentials thanks to
   Quildreen Motta <quildreen@gmail.com>.
+* Johan Persson <johan.z.persson@gmail.com> added support
+  for saving posts as drafts.
