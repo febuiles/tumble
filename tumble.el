@@ -75,7 +75,7 @@
 
 ;;
 ;; Download Tumble to some directory:
-;; $ git clone git://github.com/killdream/tumble.git
+;; $ git clone git://github.com/febuiles/tumble.git
 ;;
 ;; Add it to your load list and require it:
 ;;
