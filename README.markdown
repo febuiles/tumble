@@ -37,6 +37,10 @@ You can start tumbling by using the following functions:
 
     tumble-video-from-url
 
+Posts can either be published or saved as drafts, you'll be prompted
+when you upload them. If you leave the 'State' field empty the post
+will be published.
+
 Read tumble.el for more information about each function.
 
 Installation
@@ -91,3 +95,5 @@ Acknowledgements
 
 * Tumble now prompts you for login credentials thanks to
   Quildreen Motta <quildreen@gmail.com>.
+* Johan Persson <johan.z.persson@gmail.com> added support
+  for saving posts as drafts.

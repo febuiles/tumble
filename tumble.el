@@ -7,7 +7,7 @@
 ;; Quildreen Motta <quildreen@gmail.com>
 ;; Johan Persson <johan.z.persson@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 1.2
+;; Version: 1.3
 ;; Keywords: tumblr
 
 ;; This file is NOT part of GNU Emacs.
@@ -75,7 +75,7 @@
 
 ;;
 ;; Download Tumble to some directory:
-;; $ git clone git://github.com/killdream/tumble.git
+;; $ git clone git://github.com/febuiles/tumble.git
 ;;
 ;; Add it to your load list and require it:
 ;;
@@ -154,7 +154,7 @@
 (defun tumble-text-from-buffer (title state)
   "Post the current buffer as a text in Tumblr"
   (interactive "sTitle: \nsState (published or draft): ")
-  (tumble-text-from-region (point-min) (point-max) title 
+  (tumble-text-from-region (point-min) (point-max) title
                            (tumble-state-from-partial-string state)))
 
 ;;;###autoload
