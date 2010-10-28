@@ -112,7 +112,8 @@
 ;; Optional information
 (setq tumble-group nil)                      ; uncomment to use a group.
 (setq tumble-format  "markdown")            ; you can change this to html
-(setq tumble-api-url "https://www.tumblr.com/api/write")
+(setq tumble-write-api-url "https://www.tumblr.com/api/write")
+(setq tumble-read-api-url "http://coffeedigress.tumblr.com/api/read")
 (setq tumble-states (list "published" "draft")) ; supported states
 
 (defun tumble-state-from-partial-string (st)
@@ -285,6 +286,146 @@
          (cons 'caption caption)
          (cons 'state state))))
 
+;;; Tumble menu mode (shamelessly stolen from ELPA package.el)
+(defvar tumble-menu-mode-map nil
+  "Local keymap for `tumble-menu-mode' buffers.")
+
+(unless tumble-menu-mode-map
+  (setq tumble-menu-mode-map (make-keymap))
+  (suppress-keymap tumble-menu-mode-map)
+  (define-key tumble-menu-mode-map "q" 'quit-window)
+  (define-key tumble-menu-mode-map "n" 'next-line)
+  (define-key tumble-menu-mode-map "p" 'previous-line)
+  (define-key tumble-menu-mode-map (kbd "RET") 'tumble-menu-edit-post))
+
+(put 'tumble-menu-mode 'mode-class 'special)
+
+(defun tumble-menu-mode ()
+  "Major mode for listing posts in a Tumblr blog.
+\\<tumble-menu-mode-map>
+\\{tumble-menu-mode-map}"
+  (kill-all-local-variables)
+  (use-local-map tumble-menu-mode-map)
+  (setq major-mode 'tumble-menu-mode)
+  (setq mode-name "Tumble Menu")
+  (setq truncate-lines t)
+  (setq buffer-read-only t))
+
+(defun tumble-menu-edit-post ()
+  (interactive)
+  (let ((post (tumble-menu-get-post)))
+    (with-current-buffer (get-buffer-create "*Edit draft*")
+      (setq tumble-active-draft-id (car post))
+      (erase-buffer)
+      (markdown-mode)
+      (insert (nth 3 post))
+      (goto-char (point-min))
+      (pop-to-buffer (current-buffer)))))
+
+(defun tumble-menu-get-post ()
+  (nth (1- (line-number-at-pos)) tumble-posts-cache))
+
+(defvar tumble-posts-cache nil)
+
+(defun tumble-print-post (num title)
+  (insert (propertize (number-to-string num) 'font-lock-face 'default))
+  (indent-to 3 1)
+  (insert (propertize title 'font-lock-face 'default))
+  (insert "\n"))
+
+
+(defun tumble-list-posts-internal ()
+  (with-current-buffer (get-buffer-create "*Posts*")
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (let ((c 0))
+      (mapc (lambda (elt)
+              (setq c (1+ c))
+              (tumble-print-post c
+                                 (caddr elt)))
+            tumble-posts-cache))
+    (goto-char (point-min))
+    (current-buffer)))
+
+
+(defun tumble--list-posts ()
+  "Display a list of packages."
+  (with-current-buffer (tumble-list-posts-internal)
+    (tumble-menu-mode)
+    ;; Set up the header line.
+    (setq header-line-format
+	  (mapconcat
+	   (lambda (pair)
+	     (let ((column (car pair))
+		   (name (cdr pair)))
+	       (concat
+		;; Insert a space that aligns the button properly.
+		(propertize " " 'display (list 'space :align-to column)
+			    'face 'fixed-pitch)
+                name)))
+	   ;; We take a trick from buff-menu and have a dummy leading
+	   ;; space to align the header line with the beginning of the
+	   ;; text.  This doesn't really work properly on Emacs 21,
+	   ;; but it is close enough.
+	   '((0 . "#")
+	     (3 . "Title"))
+	   ""))
+    (pop-to-buffer (current-buffer))))
+
+(defun tumble-list-text-drafts ()
+  "Display a list of text drafts.
+The list is displayed in a buffer named `*Posts*'."
+  (interactive)
+  (tumble-get-text-drafts)
+  (tumble--list-posts))
+
+(defun tumble-fetch-read (state)
+  (let ((request (list
+                  (cons 'filter "none")
+                  (cons 'state  state))))
+         (multiple-value-bind
+             (data header status) (http-post-simple tumble-read-api-url
+                                                    (append (tumble-default-headers)
+                                                            request))
+           (cond ((eq status 200)
+                  data)
+                 (t
+                  (message "Unknown code"))))))
+
+(defun tumble-parse-read (data)
+  (with-temp-buffer
+    (insert data)
+    (xml-parse-region (point-min) (point-max))))
+
+(defun tumble-extract-posts (state)
+  (cddar (cdddar (tumble-parse-read (tumble-fetch-read state)))))
+
+;; These are universal
+(defun tumble-id-of-post (post) (cdaadr post))
+(defun tumble-type-of-post (post) (cdaddr (cdadr post)))
+
+(defun tumble-convert-text-post (post)
+  (list (tumble-id-of-post post)
+        (tumble-type-of-post post)
+        (caddr (caddr post)) ; Title
+        (caddr (cadddr post)))) ; Body
+
+(defun tumble-get-posts (converter state type)
+  (delete nil (mapcar 
+               `(lambda (x)
+                  (if (string= (tumble-type-of-post x) ,type)
+                      (,converter x)
+                      nil))
+               (tumble-extract-posts state))))
+  
+(defun tumble-get-text-drafts ()
+  (setq tumble-posts-cache (tumble-get-posts
+                            'tumble-convert-text-post "draft" "regular")))
+
+
+
+;;; HTTP stuff
+
 (defun tumble-default-headers ()
   "Generic Tumblr headers"
   (if (or (not tumble-email) (not tumble-password) (not tumble-group))
@@ -297,13 +438,13 @@
 
 (defun tumble-http-post (request)
   "Send the POST to Tumblr"
-  (let* ((resp (http-post-simple tumble-api-url
+  (let* ((resp (http-post-simple tumble-write-api-url
                                  (append (tumble-default-headers) request))))
     (tumble-process-response resp)))
 
 (defun tumble-multipart-http-post (request filename mime data)
   "Multipart POST used to upload files to Tumblr"
-  (let* ((resp (http-post-simple-multipart tumble-api-url
+  (let* ((resp (http-post-simple-multipart tumble-write-api-url
                                            (append (tumble-default-headers)
                                                    request)
                                            (list (list "data" filename mime data)))))
