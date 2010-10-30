@@ -116,6 +116,8 @@
 (setq tumble-read-api-url "http://coffeedigress.tumblr.com/api/read")
 (setq tumble-states (list "published" "draft")) ; supported states
 
+(setq tumble-active-edit-post nil)
+
 (defun tumble-state-from-partial-string (st)
   (let ((state (car tumble-states)))
     (if (string= st "")
@@ -311,16 +313,41 @@
   (setq truncate-lines t)
   (setq buffer-read-only t))
 
+ (define-minor-mode tumble-edit-text-draft-mode
+   "Buffer local keybindings for editing text drafts"
+   nil
+   " Tumble Edit"
+   '(([(meta p)] . tumble-save-text-draft)))
+
+(defun tumble-save-text-draft ()
+  (interactive)
+  (if (null tumble-active-edit-post)
+      (message "No active edit")
+    (tumble-http-post
+     (list
+      (cons 'title 
+            (let ((title (read-string "Title: ")))
+              (if (string= title "")
+                  (nth 2 tumble-active-edit-post)
+                title)))
+      (cons 'state
+            (tumble-state-from-partial-string
+             (read-string "State (published or draft): ")))       
+      (cons 'body
+            (buffer-substring-no-properties (point-min) (point-max)))
+      (cons 'post-id
+            (nth 0 tumble-active-edit-post))))))
+
 (defun tumble-menu-edit-post ()
   (interactive)
-  (let ((post (tumble-menu-get-post)))
-    (with-current-buffer (get-buffer-create "*Edit draft*")
-      (setq tumble-active-draft-id (car post))
-      (erase-buffer)
-      (markdown-mode)
-      (insert (nth 3 post))
-      (goto-char (point-min))
-      (pop-to-buffer (current-buffer)))))
+  (with-current-buffer (get-buffer-create "*Edit draft*")
+    (setq tumble-active-edit-post (tumble-menu-get-post))
+    (erase-buffer)
+    (markdown-mode)
+    (tumble-edit-text-draft-mode)    
+    (insert (nth 3 tumble-active-edit-post))
+    (goto-char (point-min))
+    (pop-to-buffer (current-buffer))))
 
 (defun tumble-menu-get-post ()
   (nth (1- (line-number-at-pos)) tumble-posts-cache))
