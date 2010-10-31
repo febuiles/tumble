@@ -7,7 +7,7 @@
 ;; Quildreen Motta <quildreen@gmail.com>
 ;; Johan Persson <johan.z.persson@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 1.3
+;; Version: 1.4
 ;; Keywords: tumblr
 
 ;; This file is NOT part of GNU Emacs.
@@ -69,6 +69,41 @@
 ;; A word of caution: Audio files can take a while to upload and will
 ;; probably freeze your Emacs until it finishes uploading.
 
+;; EDITING TEXT DRAFTS
+
+;; As of version 1.4, support has been added for listing, editing, saving
+;; and publishing text drafts.
+
+;; The following commands are central to this feature:
+
+;; tumble-list-text-drafts
+;;     Creates a buffer called `*Posts*' that list the text drafts on the
+;;     blog specified by `tumble-url'. This buffer have the major mode
+;;     `tumble-menu-mode', which binds `n' for selecting the next item in
+;;     the menu, `p' for the previous item and `q' for closing the window,
+;;     as well as the minor mode `tumble-text-draft-menu-mode' which binds
+;;     `M-p' to `tumble-text-draft-edit', which opens an edit window for the
+;;     selected item.
+
+;; tumble-text-draft-edit
+;;     May only be used un conjunction with an active `*Posts*'-buffer.
+;;     Creates a buffer called `*Edit draft*' based on where the pointer
+;;     is in `*Posts*'. The major mode varies between `html-mode' and
+;;     `markdown-mode' depending on the value of `tumble-format'.
+;;     The minor mode `tumble-text-draft-edit-mode' binds `M-p' to
+;;     `tumble-text-draft-save'.
+
+;; tumble-text-draft-save
+;;     Saves or publishes the draft. Will prompt for title (defaults to the
+;;     old title if left blank) and state (defaults to "published" if left
+;;     blank). If "draft" is selected for state, the draft will be saved,
+;;     otherwise it will be published. May only be used if there is an active
+;;     `*Edit draft*' buffer present.
+
+;; Note: Make sure that `tumble-url' is formatted as "foo.tumblr.com",
+;;       that is without the protocol specifier, lest this feature won't
+;;       work.
+
 ;; You can always find the latest version of Tumble at: http://github.com/febuiles/tumble
 
 ;; Installation:
@@ -113,9 +148,9 @@
 (setq tumble-group nil)                      ; uncomment to use a group.
 (setq tumble-format  "markdown")            ; you can change this to html
 (setq tumble-write-api-url "https://www.tumblr.com/api/write")
-(setq tumble-read-api-url "http://coffeedigress.tumblr.com/api/read")
 (setq tumble-states (list "published" "draft")) ; supported states
 
+(setq tumble-posts-cache nil)
 (setq tumble-active-edit-post nil)
 
 (defun tumble-state-from-partial-string (st)
@@ -288,7 +323,15 @@
          (cons 'caption caption)
          (cons 'state state))))
 
-;;; Tumble menu mode (shamelessly stolen from ELPA package.el)
+;;;; List posts
+
+(defun tumble-menu-get-post ()
+  (with-current-buffer (get-buffer-create "*Posts*")
+    (nth (1- (line-number-at-pos)) tumble-posts-cache)))
+
+
+;;; Major mode (Shamelessly ripped from ELPA's package.el. Many thanks!)
+
 (defvar tumble-menu-mode-map nil
   "Local keymap for `tumble-menu-mode' buffers.")
 
@@ -297,13 +340,12 @@
   (suppress-keymap tumble-menu-mode-map)
   (define-key tumble-menu-mode-map "q" 'quit-window)
   (define-key tumble-menu-mode-map "n" 'next-line)
-  (define-key tumble-menu-mode-map "p" 'previous-line)
-  (define-key tumble-menu-mode-map (kbd "RET") 'tumble-menu-edit-post))
+  (define-key tumble-menu-mode-map "p" 'previous-line))
 
 (put 'tumble-menu-mode 'mode-class 'special)
 
 (defun tumble-menu-mode ()
-  "Major mode for listing posts in a Tumblr blog.
+  "Major mode for listing posts in a tumblelog.
 \\<tumble-menu-mode-map>
 \\{tumble-menu-mode-map}"
   (kill-all-local-variables)
@@ -313,72 +355,86 @@
   (setq truncate-lines t)
   (setq buffer-read-only t))
 
- (define-minor-mode tumble-edit-text-draft-mode
-   "Buffer local keybindings for editing text drafts"
-   nil
-   " Tumble Edit"
-   '(([(meta p)] . tumble-save-text-draft)))
+;;; The various minor modes under the major tumble menu mode
 
-(defun tumble-save-text-draft ()
-  (interactive)
-  (if (null tumble-active-edit-post)
-      (message "No active edit")
-    (tumble-http-post
-     (list
-      (cons 'title 
-            (let ((title (read-string "Title: ")))
-              (if (string= title "")
-                  (nth 2 tumble-active-edit-post)
-                title)))
-      (cons 'state
-            (tumble-state-from-partial-string
-             (read-string "State (published or draft): ")))       
-      (cons 'body
-            (buffer-substring-no-properties (point-min) (point-max)))
-      (cons 'post-id
-            (nth 0 tumble-active-edit-post))))))
+(define-minor-mode tumble-text-draft-menu-mode
+  "Minor mode for use under the Tumble Menu major mode. (Text draft)"
+  nil
+  " Draft"
+  '(([(meta p)] . tumble-text-draft-edit)))
 
-(defun tumble-menu-edit-post ()
+(define-minor-mode tumble-text-draft-edit-mode
+  "Buffer local keybindings for editing tumblelog text drafts."
+  nil
+  " Tumble Edit"
+  '(([(meta p)] . tumble-text-draft-save)))
+
+
+;; Draft edit
+(defun tumble-text-draft-edit ()
+  "Creates a buffer called `*Edit draft*' for use in editing tumblelog text drafts."
   (interactive)
   (with-current-buffer (get-buffer-create "*Edit draft*")
     (setq tumble-active-edit-post (tumble-menu-get-post))
     (erase-buffer)
-    (markdown-mode)
-    (tumble-edit-text-draft-mode)    
-    (insert (nth 3 tumble-active-edit-post))
+    (if (string= tumble-format "markdown")
+        (markdown-mode)
+      (html-mode))
+    (tumble-text-draft-edit-mode)    
+    (insert (tumble-body-of-post tumble-active-edit-post))
     (goto-char (point-min))
     (pop-to-buffer (current-buffer))))
 
-(defun tumble-menu-get-post ()
-  (nth (1- (line-number-at-pos)) tumble-posts-cache))
+(defun tumble-text-draft-save ()
+  "Save or publish changes of a text draft to tumblelog. Kills `*Edit draft*'"
+  (interactive)
+  (if (null tumble-active-edit-post)
+      (message "No active edit")
+    (prog1
+        (tumble-http-post
+         (list
+          (cons 'title 
+                (let ((title (read-string "Title: ")))
+                  (if (string= title "")
+                      (tumble-title-of-post tumble-active-edit-post)
+                    title)))
+          (cons 'state
+                (tumble-state-from-partial-string
+                 (read-string "State (published or draft): ")))       
+          (cons 'body
+                (buffer-substring-no-properties (point-min) (point-max)))
+          (cons 'post-id
+                (tumble-id-of-post tumble-active-edit-post))))
+        (setq tumble-active-edit-post nil)
+        (kill-buffer "*Edit draft*"))))
 
-(defvar tumble-posts-cache nil)
-
-(defun tumble-print-post (num title)
+;; Displaying list of posts
+(defun tumble-list-print-post (num title)
+  "Put item in the buffer menu"
   (insert (propertize (number-to-string num) 'font-lock-face 'default))
   (indent-to 3 1)
   (insert (propertize title 'font-lock-face 'default))
   (insert "\n"))
 
-
 (defun tumble-list-posts-internal ()
+  "Sets up the buffer `*Posts*' and fill it with items"
   (with-current-buffer (get-buffer-create "*Posts*")
     (setq buffer-read-only nil)
     (erase-buffer)
     (let ((c 0))
       (mapc (lambda (elt)
               (setq c (1+ c))
-              (tumble-print-post c
-                                 (caddr elt)))
+              (tumble-list-print-post c
+                                      (tumble-title-of-post elt)))
             tumble-posts-cache))
     (goto-char (point-min))
     (current-buffer)))
 
-
-(defun tumble--list-posts ()
-  "Display a list of packages."
+(defun tumble-list-posts (minor)
+  "Display a list of posts."
   (with-current-buffer (tumble-list-posts-internal)
     (tumble-menu-mode)
+    (funcall minor)
     ;; Set up the header line.
     (setq header-line-format
 	  (mapconcat
@@ -390,65 +446,81 @@
 		(propertize " " 'display (list 'space :align-to column)
 			    'face 'fixed-pitch)
                 name)))
-	   ;; We take a trick from buff-menu and have a dummy leading
-	   ;; space to align the header line with the beginning of the
-	   ;; text.  This doesn't really work properly on Emacs 21,
-	   ;; but it is close enough.
 	   '((0 . "#")
 	     (3 . "Title"))
 	   ""))
     (pop-to-buffer (current-buffer))))
 
-(defun tumble-list-text-drafts ()
-  "Display a list of text drafts.
-The list is displayed in a buffer named `*Posts*'."
-  (interactive)
-  (tumble-get-text-drafts)
-  (tumble--list-posts))
 
-(defun tumble-fetch-read (state)
+;; Fetch, parse and convert posts
+(defun tumble-fetch-posts (state)
+  "Fetch raw xml-data from tumblelog."
   (let ((request (list
                   (cons 'filter "none")
                   (cons 'state  state))))
          (multiple-value-bind
-             (data header status) (http-post-simple tumble-read-api-url
-                                                    (append (tumble-default-headers)
-                                                            request))
+             (data header status) (http-post-simple 
+                                   (concat "https://" tumble-url "/api/read")
+                                   (append (tumble-default-headers)
+                                           request))
            (cond ((eq status 200)
                   data)
                  (t
-                  (message "Unknown code"))))))
+                  (progn
+                    (kill-buffer "*Posts*")
+                    (message (format "Unknown code (%d)" status))))))))
 
-(defun tumble-parse-read (data)
+(defun tumble-parse-posts (data)
+  "Parse xml-data."
   (with-temp-buffer
     (insert data)
     (xml-parse-region (point-min) (point-max))))
 
 (defun tumble-extract-posts (state)
-  (cddar (cdddar (tumble-parse-read (tumble-fetch-read state)))))
+  "Extract the posts from the xml-tree."
+  (cddar (cdddar (tumble-parse-posts (tumble-fetch-posts state)))))
 
-;; These are universal
-(defun tumble-id-of-post (post) (cdaadr post))
-(defun tumble-type-of-post (post) (cdaddr (cdadr post)))
+
+(defun tumble-id-of-post (post)
+  "Extract the id of a post tuple."
+  (car post))
+
+(defun tumble-title-of-post (post)
+  "Extract the title of a post tuple."
+  (cadr post))
+
+(defun tumble-body-of-post (post)
+  "Extract the body of a post tuple."
+  (caddr post))
 
 (defun tumble-convert-text-post (post)
-  (list (tumble-id-of-post post)
-        (tumble-type-of-post post)
-        (caddr (caddr post)) ; Title
-        (caddr (cadddr post)))) ; Body
+  "Convert a raw xml-tree post to a post tuple."
+  (list (cdaadr post)              ; ID
+        (caddr (caddr post))       ; Title
+        (caddr (cadddr post))))    ; Body
 
 (defun tumble-get-posts (converter state type)
+  "Fetch, parse, extract and convert the posts of a tumblelog."
   (delete nil (mapcar 
-               `(lambda (x)
-                  (if (string= (tumble-type-of-post x) ,type)
-                      (,converter x)
-                      nil))
+               (lambda (x)
+                 ;; Note: this filter only exists since a POST to
+                 ;; foo.tumblr.com/api/read apparently ignore the type
+                 ;; parameter. The choice was either to include http-get.el
+                 ;; for this purpose or live with the ugly wart below.
+                 (if (string= (cdr (nth 3 (cadr x))) type)
+                     (funcall converter x)
+                   nil))
                (tumble-extract-posts state))))
-  
-(defun tumble-get-text-drafts ()
-  (setq tumble-posts-cache (tumble-get-posts
-                            'tumble-convert-text-post "draft" "regular")))
 
+
+;;;###autoload
+(defun tumble-list-text-drafts ()
+  "Display a list of text drafts.
+The list is displayed in a buffer named `*Posts*'."
+  (interactive)
+  (setq tumble-posts-cache (tumble-get-posts
+                            'tumble-convert-text-post "draft" "regular"))
+  (tumble-list-posts 'tumble-text-draft-menu-mode))
 
 
 ;;; HTTP stuff

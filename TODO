@@ -1,0 +1,10 @@
+TODO
+
+* Clean up `tumble-text-draft-save'.
+   - Mostly a matter of refactoring.
+
+* Clean up `tumble-fetch-posts'
+   - HTTP GET, perhaps?
+   - How about proper handling of the status codes?
+
+* Rephrase the crap documentation strings.
