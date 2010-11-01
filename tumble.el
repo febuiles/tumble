@@ -157,7 +157,7 @@
 
 (setq tumble-states (list "published" "draft")) ; supported states
 (setq tumble-posts-cache nil)
-(setq tumble-active-edit-post nil)
+(setq tumble-selected-draft nil)
 
 (defun tumble-state-from-partial-string (st)
   "Receives a partial string ST (e.g. \"dra\") and returns the
@@ -384,18 +384,18 @@ ST then the default state (\"published\") is returned."
 tumblelog text drafts."
   (interactive)
   (with-current-buffer (get-buffer-create "*Edit draft*")
-    (setq tumble-active-edit-post (tumble-menu-get-post))
+    (setq tumble-selected-draft (tumble-menu-get-post))
     (erase-buffer)
     (tumble-set-buffer-format)
     (tumble-text-draft-edit-mode)
-    (insert (tumble-body-of-post tumble-active-edit-post))
+    (insert (tumble-body-of-post tumble-selected-draft))
     (beginning-of-buffer)
     (pop-to-buffer (current-buffer))))
 
 (defun tumble-text-draft-save ()
   "Save or publish changes of a text draft to tumblelog. Kills `*Edit draft*'"
   (interactive)
-  (if (null tumble-active-edit-post)
+  (if (null tumble-selected-draft)
       (message "No active edit post")
     (prog1
         (tumble-http-post
@@ -403,7 +403,7 @@ tumblelog text drafts."
           (cons 'title
                 (let ((title (read-string "Title: ")))
                   (if (string= title "")
-                      (tumble-title-of-post tumble-active-edit-post)
+                      (tumble-title-of-post tumble-selected-draft)
                     title)))
           (cons 'state
                 (tumble-state-from-partial-string
@@ -411,8 +411,8 @@ tumblelog text drafts."
           (cons 'body
                 (buffer-substring-no-properties (point-min) (point-max)))
           (cons 'post-id
-                (tumble-id-of-post tumble-active-edit-post))))
-        (setq tumble-active-edit-post nil)
+                (tumble-id-of-post tumble-selected-draft))))
+        (setq tumble-selected-draft nil)
         (kill-buffer "*Edit draft*"))))
 
 ;; Displaying list of posts
