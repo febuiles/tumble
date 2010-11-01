@@ -162,19 +162,7 @@
 (setq tumble-posts-cache nil)
 (setq tumble-selected-draft nil)
 
-(defun tumble-state-from-partial-string (st)
-  "Receives a partial string ST (e.g. \"dra\") and returns the
-closest match from the `tumble-states' list. If no value matches
-ST then the default state (\"published\") is returned."
-  (let ((state (car tumble-states)))
-    (if (string= st "")
-        state
-      (progn
-        (mapc `(lambda (x)
-                 (if (string-match (concat "^" ,st) x)
-                     (setq state x)))
-              tumble-states)
-        state))))
+;;; Login
 
 (defun tumble-login ()
   "Ask the user for his Tumblr credentials"
@@ -191,6 +179,8 @@ ST then the default state (\"published\") is returned."
   (setq tumble-password nil)
   (setq tumble-url nil)
   (setq tumble-group nil))
+
+;;; User-facing posting functions
 
 ;;;###autoload
 (defun tumble-text-from-region (min max title state)
@@ -289,6 +279,8 @@ ST then the default state (\"published\") is returned."
          (state (read-string "State (published or draft): ")))
     (tumble-post-video embed caption (tumble-state-from-partial-string state))))
 
+;;; Internal post-sending
+
 (defun tumble-post-text (title body state)
   "Posts a new text to a tumblelog"
   (tumble-http-post
@@ -330,6 +322,8 @@ ST then the default state (\"published\") is returned."
          (cons 'embed embed)
          (cons 'caption caption)
          (cons 'state state))))
+
+;;; Post editing
 
 (defun tumble-menu-get-post ()
   "Returns the selected buffer from the list of posts in *Posts*"
@@ -440,9 +434,10 @@ the request."
     (tumble-process-response resp)))
 
 
-;; RESPONSE is a simple http response list with (url response code)
 (defun tumble-process-response (response)
-  "Returns a message based on the response code"
+  "Returns a message based on the response code. RESPONSE
+is an HTTP response list where the third field is the HTTP
+response code."
   (let* ((code (third response)))       ;
     (message
      (cond ((eq code 200) "No post created")
@@ -460,6 +455,15 @@ the request."
            (kill-new (concat tumble-url id))) ; url has a trailing slash
           (t (kill-new (concat tumble-url (concat "/" id)))))))
 
+(defun tumble-read-api-url ()
+  "Returns the URL for the read API of the tumblelog appending
+https if needed."
+  (concat "https://"
+          (replace-regexp-in-string "https?://" "" tumble-url)
+          "/api/read"))
+
+;;; Helper functions
+
 (defun tumble-region-text()
   "Returns the text of the region inside an (interactive 'r') function"
   (buffer-substring-no-properties min max))
@@ -471,12 +475,20 @@ the request."
     (buffer-substring-no-properties (point-min)
                                     (point-max))))
 
-(defun tumble-read-api-url ()
-  "Returns the URL for the read API of the tumblelog appending
-https if needed."
-  (concat "https://"
-          (replace-regexp-in-string "https?://" "" tumble-url)
-          "/api/read"))
+(defun tumble-state-from-partial-string (st)
+  "Receives a partial string ST (e.g. \"dra\") and returns the
+closest match from the `tumble-states' list. If no value matches
+ST then the default state (\"published\") is returned."
+  (let ((state (car tumble-states)))
+    (if (string= st "")
+        state
+      (progn
+        (mapc `(lambda (x)
+                 (if (string-match (concat "^" ,st) x)
+                     (setq state x)))
+              tumble-states)
+        state))))
+
 
 (provide 'tumble)
 ;;; tumble.el ends here
