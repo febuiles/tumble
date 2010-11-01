@@ -2,10 +2,10 @@
 
 ;; Copyright (C) 2008 Federico Builes
 
-;; Author: Federico Builes <federico.builes@gmail.com>
+;; Authors: Federico Builes <federico.builes@gmail.com>
+;;          Johan Persson <johan.z.persson@gmail.com>
 ;; Contributors:
 ;; Quildreen Motta <quildreen@gmail.com>
-;; Johan Persson <johan.z.persson@gmail.com>
 ;; Created: 1 Dec 2008
 ;; Version: 1.4
 ;; Keywords: tumblr
@@ -380,7 +380,7 @@
     (if (string= tumble-format "markdown")
         (markdown-mode)
       (html-mode))
-    (tumble-text-draft-edit-mode)    
+    (tumble-text-draft-edit-mode)
     (insert (tumble-body-of-post tumble-active-edit-post))
     (goto-char (point-min))
     (pop-to-buffer (current-buffer))))
@@ -393,14 +393,14 @@
     (prog1
         (tumble-http-post
          (list
-          (cons 'title 
+          (cons 'title
                 (let ((title (read-string "Title: ")))
                   (if (string= title "")
                       (tumble-title-of-post tumble-active-edit-post)
                     title)))
           (cons 'state
                 (tumble-state-from-partial-string
-                 (read-string "State (published or draft): ")))       
+                 (read-string "State (published or draft): ")))
           (cons 'body
                 (buffer-substring-no-properties (point-min) (point-max)))
           (cons 'post-id
@@ -459,7 +459,7 @@
                   (cons 'filter "none")
                   (cons 'state  state))))
          (multiple-value-bind
-             (data header status) (http-post-simple 
+             (data header status) (http-post-simple
                                    (concat "https://" tumble-url "/api/read")
                                    (append (tumble-default-headers)
                                            request))
@@ -501,7 +501,7 @@
 
 (defun tumble-get-posts (converter state type)
   "Fetch, parse, extract and convert the posts of a tumblelog."
-  (delete nil (mapcar 
+  (delete nil (mapcar
                (lambda (x)
                  ;; Note: this filter only exists since a POST to
                  ;; foo.tumblr.com/api/read apparently ignore the type
