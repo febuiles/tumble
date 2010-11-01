@@ -7,7 +7,7 @@
 ;; Contributors:
 ;; Quildreen Motta <quildreen@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 1.4
+;; Version: 2.0
 ;; Keywords: tumblr
 
 ;; This file is NOT part of GNU Emacs.
