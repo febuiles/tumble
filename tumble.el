@@ -236,7 +236,6 @@ ST then the default state (\"published\") is returned."
   (interactive "r \nsTitle (optional): \nsState (published or draft): ")
   (tumble-post-chat title (tumble-region-text)
                     (tumble-state-from-partial-string state)))
-
 ;;;###autoload
 (defun tumble-chat-from-buffer (title state)
   "Posts a chat to Tumblr using the current buffer"
@@ -300,7 +299,6 @@ ST then the default state (\"published\") is returned."
 
 (defun tumble-post-chat (title chat state)
   "Posts a new chat to a tumblelog"
-  (tumble-change-state state)
   (tumble-http-post
    (list (cons 'type "conversation")
          (cons 'title title)
@@ -309,7 +307,6 @@ ST then the default state (\"published\") is returned."
 
 (defun tumble-post-link (name url description state)
   "Posts a link to a tumblelog"
-  (tumble-change-state state)
   (tumble-http-post
    (list (cons 'type "link")
          (cons 'name name)
@@ -319,7 +316,6 @@ ST then the default state (\"published\") is returned."
 
 (defun tumble-post-photo (source caption url state)
   "Posts a photo to a tumblelog"
-  (tumble-change-state state)
   (tumble-http-post
    (list (cons 'type "photo")
          (cons 'source source)
@@ -433,7 +429,7 @@ The parameters are the parameters expected by the Tumblr API
 such as \"caption\" or \"source\".
 
 `tumble-process-response' is called with the return code of
-the request".
+the request."
   (let* ((resp (http-post-simple tumble-write-api-url
                                  (append (tumble-default-headers) request))))
     (tumble-process-response resp)))
