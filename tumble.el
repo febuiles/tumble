@@ -343,7 +343,7 @@ ST then the default state (\"published\") is returned."
                   (cons 'state  state))))
          (multiple-value-bind
              (data header status) (http-post-simple
-                                   (concat "https://" tumble-url "/api/read")
+                                   (tumble-read-api-url)
                                    (append (tumble-default-headers)
                                            request))
            (cond ((eq status 200)
@@ -352,7 +352,6 @@ ST then the default state (\"published\") is returned."
                   (progn
                     (kill-buffer "*Posts*")
                     (message (format "Unknown code (%d)" status))))))))
-
 
 (defun tumble-parse-posts (data)
   "Receives an XML data string DATA and returns the list of XML
@@ -471,6 +470,13 @@ the request."
     (insert-file-contents-literally filename)
     (buffer-substring-no-properties (point-min)
                                     (point-max))))
+
+(defun tumble-read-api-url ()
+  "Returns the URL for the read API of the tumblelog appending
+https if needed."
+  (concat "https://"
+          (replace-regexp-in-string "https?://" "" tumble-url)
+          "/api/read"))
 
 (provide 'tumble)
 ;;; tumble.el ends here
