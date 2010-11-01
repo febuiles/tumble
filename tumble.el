@@ -496,7 +496,7 @@ ST then the default state (\"published\") is returned."
   "Asks the user for a title for his post. If no title is given
 then the original title is used"
   (let* ((current-title (tumble-title-of-post tumble-selected-draft))
-         (new-title (read-string (concat "Title [" current-title1 "]: "))))
+         (new-title (read-string (concat "Title [" current-title "]: "))))
          (if (string= new-title "")
              current-title
            new-title)))
