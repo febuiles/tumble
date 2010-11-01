@@ -93,12 +93,8 @@ tumblelog text drafts."
     (prog1
         (tumble-http-post
          (list
-          ;; Use the current title unless a new title is provided.
           (cons 'title
-                (let ((title (read-string "Title: ")))
-                  (if (string= title "")
-                      (tumble-title-of-post tumble-selected-draft)
-                    title)))
+                (tumble-get-title-for-post)
           (cons 'state
                 (tumble-state-from-partial-string
                  (read-string "State (published or draft): ")))

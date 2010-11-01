@@ -437,7 +437,7 @@ response code."
      (cond ((eq code 200) "No post created")
            ((eq code 201)
             (tumble-paste-url (car response))
-            "Post created" )
+            "Post saved" )
            ((eq code 400) "Bad Request")
            ((eq code 403) "Authentication Failed")
            (t "Unknown Response")))))
@@ -492,6 +492,14 @@ ST then the default state (\"published\") is returned."
               tumble-states)
         state))))
 
+(defun tumble-get-title-for-post ()
+  "Asks the user for a title for his post. If no title is given
+then the original title is used"
+  (let ((current-title (tumble-title-of-post tumble-selected-draft))
+        (new-title (read-string (concat "Title [" current-title "]: "))))
+    (if (string= new-title "")
+        current-title
+      new-title)))
 
 (provide 'tumble)
 ;;; tumble.el ends here
