@@ -440,7 +440,7 @@ the buffer."
     (current-buffer)))
 
 (defun tumble-list-posts ()
-  "Display a list of posts."
+  "Display the list of posts."
   (with-current-buffer (tumble-list-posts-internal)
     (tumble-menu-mode)
     (tumble-text-draft-menu-mode)
@@ -462,7 +462,7 @@ the buffer."
 
 ;; Fetch, parse and convert posts
 (defun tumble-fetch-posts (state)
-  "Fetch raw xml-data from tumblelog."
+  "Fetch the raw XML-data from the tumblelog and returns it."
   (let ((request (list
                   (cons 'filter "none")
                   (cons 'state  state))))
@@ -478,16 +478,17 @@ the buffer."
                     (kill-buffer "*Posts*")
                     (message (format "Unknown code (%d)" status))))))))
 
+
 (defun tumble-parse-posts (data)
-  "Parse xml-data."
+  "Receives an XML data string DATA and returns the list of XML
+elements."
   (with-temp-buffer
     (insert data)
     (xml-parse-region (point-min) (point-max))))
 
 (defun tumble-extract-posts (state)
-  "Extract the posts from the xml-tree."
+  "Extract the posts with a given STATE from the xml-tree."
   (cddar (cdddar (tumble-parse-posts (tumble-fetch-posts state)))))
-
 
 (defun tumble-id-of-post (post)
   "Extract the id of a post tuple."
