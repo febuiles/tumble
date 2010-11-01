@@ -396,10 +396,11 @@ tumblelog text drafts."
   "Save or publish changes of a text draft to tumblelog. Kills `*Edit draft*'"
   (interactive)
   (if (null tumble-selected-draft)
-      (message "No active edit post")
+      (message "No selected post")
     (prog1
         (tumble-http-post
          (list
+          ;; Use the current title unless a new title is provided.
           (cons 'title
                 (let ((title (read-string "Title: ")))
                   (if (string= title "")
@@ -417,31 +418,32 @@ tumblelog text drafts."
 
 ;; Displaying list of posts
 (defun tumble-list-print-post (num title)
-  "Put item in the buffer menu"
+  "Insert ITEM in the position NUM of the list of editable posts."
   (insert (propertize (number-to-string num) 'font-lock-face 'default))
   (indent-to 3 1)
   (insert (propertize title 'font-lock-face 'default))
   (insert "\n"))
 
 (defun tumble-list-posts-internal ()
-  "Sets up the buffer `*Posts*' and fill it with items"
+  "Sets up the buffer `*Posts*', fills it with items and returns
+the buffer."
   (with-current-buffer (get-buffer-create "*Posts*")
     (setq buffer-read-only nil)
     (erase-buffer)
     (let ((c 0))
-      (mapc (lambda (elt)
+      (mapc (lambda (tumble-post)
               (setq c (1+ c))
               (tumble-list-print-post c
-                                      (tumble-title-of-post elt)))
+                                      (tumble-title-of-post tumble-post)))
             tumble-posts-cache))
-    (goto-char (point-min))
+    (beginning-of-buffer)
     (current-buffer)))
 
-(defun tumble-list-posts (minor)
+(defun tumble-list-posts ()
   "Display a list of posts."
   (with-current-buffer (tumble-list-posts-internal)
     (tumble-menu-mode)
-    (funcall minor)
+    (tumble-text-draft-menu-mode)
     ;; Set up the header line.
     (setq header-line-format
 	  (mapconcat
@@ -457,7 +459,6 @@ tumblelog text drafts."
 	     (3 . "Title"))
 	   ""))
     (pop-to-buffer (current-buffer))))
-
 
 ;; Fetch, parse and convert posts
 (defun tumble-fetch-posts (state)
@@ -527,7 +528,7 @@ The list is displayed in a buffer named `*Posts*'."
   (interactive)
   (setq tumble-posts-cache (tumble-get-posts
                             'tumble-convert-text-post "draft" "regular"))
-  (tumble-list-posts 'tumble-text-draft-menu-mode))
+  (tumble-list-posts))
 
 
 ;;; HTTP stuff
@@ -543,7 +544,16 @@ The list is displayed in a buffer named `*Posts*'."
         (cons 'group     tumble-group)))
 
 (defun tumble-http-post (request)
-  "Send the POST to Tumblr"
+  "Send the POST request to Tumblr. Receives a list of POST
+parameters in the form:
+   (list (cons 'param1 value1)
+         (cons 'param2 value2))
+
+The parameters are the parameters expected by the Tumblr API
+such as \"caption\" or \"source\".
+
+`tumble-process-response' is called with the return code of
+the request".
   (let* ((resp (http-post-simple tumble-write-api-url
                                  (append (tumble-default-headers) request))))
     (tumble-process-response resp)))
