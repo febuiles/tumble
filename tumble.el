@@ -456,7 +456,7 @@ and the HTTP response code."
                     (append (tumble-default-headers)
                             (list
                              (cons 'filter "none")
-                             (cons 'state  state)))))
+                             (cons 'state state)))))
 
 ;;; Helper functions
 

@@ -59,8 +59,7 @@
 ;;; The various minor modes under the major tumble menu mode
 
 (define-minor-mode tumble-text-draft-menu-mode
-  "Minor mode for use under the Tumble Menu major mode.
-(Text draft)"
+  "Minor mode for use under the Tumble Menu major mode."
   nil
   " Draft"
   '(([(meta p)] . tumble-text-draft-edit)))
@@ -103,7 +102,7 @@ tumblelog text drafts."
           (cons 'post-id
                 (tumble-id-of-post tumble-selected-draft))))
         (setq tumble-selected-draft nil)
-        (kill-buffer "*Edit draft*"))))
+        (kill-buffer "*Edit draft*")))))
 
 ;; Displaying list of posts
 (defun tumble-list-print-post (num title)
