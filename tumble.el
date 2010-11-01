@@ -71,7 +71,7 @@
 
 ;; EDITING TEXT DRAFTS
 
-;; As of version 1.4, support has been added for listing, editing, saving
+;; As of version 2.0, support has been added for listing, editing, saving
 ;; and publishing text drafts.
 
 ;; The following commands are central to this feature:
