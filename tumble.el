@@ -366,7 +366,8 @@ ST then the default state (\"published\") is returned."
 ;;; The various minor modes under the major tumble menu mode
 
 (define-minor-mode tumble-text-draft-menu-mode
-  "Minor mode for use under the Tumble Menu major mode. (Text draft)"
+  "Minor mode for use under the Tumble Menu major mode.
+(Text draft)"
   nil
   " Draft"
   '(([(meta p)] . tumble-text-draft-edit)))
@@ -377,27 +378,25 @@ ST then the default state (\"published\") is returned."
   " Tumble Edit"
   '(([(meta p)] . tumble-text-draft-save)))
 
-
 ;; Draft edit
 (defun tumble-text-draft-edit ()
-  "Creates a buffer called `*Edit draft*' for use in editing tumblelog text drafts."
+  "Creates a buffer called `*Edit draft*' for use in editing
+tumblelog text drafts."
   (interactive)
   (with-current-buffer (get-buffer-create "*Edit draft*")
     (setq tumble-active-edit-post (tumble-menu-get-post))
     (erase-buffer)
-    (if (string= tumble-format "markdown")
-        (markdown-mode)
-      (html-mode))
+    (tumble-set-buffer-format)
     (tumble-text-draft-edit-mode)
     (insert (tumble-body-of-post tumble-active-edit-post))
-    (goto-char (point-min))
+    (beginning-of-buffer)
     (pop-to-buffer (current-buffer))))
 
 (defun tumble-text-draft-save ()
   "Save or publish changes of a text draft to tumblelog. Kills `*Edit draft*'"
   (interactive)
   (if (null tumble-active-edit-post)
-      (message "No active edit")
+      (message "No active edit post")
     (prog1
         (tumble-http-post
          (list
@@ -588,6 +587,15 @@ The list is displayed in a buffer named `*Posts*'."
     (insert-file-contents-literally filename)
     (buffer-substring-no-properties (point-min)
                                     (point-max))))
+
+(defun tumble-set-buffer-format ()
+"Activates the text mode according to FORMAT. Accepted values
+are \"html\" and \"markdown\". Defaults to `html-mode' for
+unknown values."
+    (if (string= tumble-format "markdown")
+        (markdown-mode)
+      (html-mode)))
+
 
 (provide 'tumble)
 ;;; tumble.el ends here
