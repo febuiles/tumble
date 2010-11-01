@@ -332,20 +332,14 @@
 
 (defun tumble-fetch-posts (state)
   "Fetch the raw XML-data from the tumblelog and returns it."
-  (let ((request (list
-                  (cons 'filter "none")
-                  (cons 'state  state))))
-         (multiple-value-bind
-             (data header status) (http-post-simple
-                                   (tumble-read-api-url)
-                                   (append (tumble-default-headers)
-                                           request))
-           (cond ((eq status 200)
-                  data)
-                 (t
-                  (progn
-                    (kill-buffer "*Posts*")
-                    (message (format "Unknown code (%d)" status))))))))
+  (multiple-value-bind (data header status) (tumble-fetch-posts-internal state)
+    (cond ((eq status 200)
+           data)
+          (t
+           (progn
+             (kill-buffer "*Posts*")
+             (message (format "Unknown error fetching posts: %d.
+Please file a bug at http://github.com/febuiles/tumble/issues/" status)))))))
 
 (defun tumble-parse-posts (data)
   "Receives an XML data string DATA and returns the list of XML
@@ -455,14 +449,23 @@ response code."
            (kill-new (concat tumble-url id))) ; url has a trailing slash
           (t (kill-new (concat tumble-url (concat "/" id)))))))
 
+(defun tumble-fetch-posts-internal (state)
+  "Returns a list containing the XML data, the HTTP status message
+and the HTTP response code."
+  (http-post-simple (tumble-read-api-url)
+                    (append (tumble-default-headers)
+                            (list
+                             (cons 'filter "none")
+                             (cons 'state  state)))))
+
+;;; Helper functions
+
 (defun tumble-read-api-url ()
   "Returns the URL for the read API of the tumblelog appending
 https if needed."
   (concat "https://"
           (replace-regexp-in-string "https?://" "" tumble-url)
           "/api/read"))
-
-;;; Helper functions
 
 (defun tumble-region-text()
   "Returns the text of the region inside an (interactive 'r') function"
