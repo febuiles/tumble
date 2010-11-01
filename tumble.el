@@ -78,7 +78,7 @@
 
 ;; tumble-list-text-drafts
 ;;     Creates a buffer called `*Posts*' that list the text drafts on the
-;;     blog specified by `tumble-url'. This buffer have the major mode
+;;     blog specified by `tumble-url'. This buffer has the major mode
 ;;     `tumble-menu-mode', which binds `n' for selecting the next item in
 ;;     the menu, `p' for the previous item and `q' for closing the window,
 ;;     as well as the minor mode `tumble-text-draft-menu-mode' which binds
@@ -140,20 +140,29 @@
 (require 'http-post-simple)
 
 ;; Personal information
-(setq tumble-email nil)
-(setq tumble-password nil)
-(setq tumble-url nil)
+(defvar tumble-email nil "Tumblr user email")
+(defvar tumble-password nil "Tumblr user password")
+(defvar tumble-url nil "URL of your Tumblelog")
 
 ;; Optional information
-(setq tumble-group nil)                      ; uncomment to use a group.
-(setq tumble-format  "markdown")            ; you can change this to html
-(setq tumble-write-api-url "https://www.tumblr.com/api/write")
-(setq tumble-states (list "published" "draft")) ; supported states
+(defvar tumble-group nil "")
+(defvar tumble-format "markdown"
+  "Format of your Tumblr posts. You can use \"markdown\" or
+\"html\".")
 
+;; Stop editing here.
+
+(defvar tumble-write-api-url "https://www.tumblr.com/api/write"
+  "URL for the Tumblr API")
+
+(setq tumble-states (list "published" "draft")) ; supported states
 (setq tumble-posts-cache nil)
 (setq tumble-active-edit-post nil)
 
 (defun tumble-state-from-partial-string (st)
+  "Receives a partial string ST (e.g. \"dra\") and returns the
+closest match from the `tumble-states' list. If no value matches
+ST then the default state (\"published\") is returned."
   (let ((state (car tumble-states)))
     (if (string= st "")
         state
@@ -173,8 +182,8 @@
   (setq tumble-url (or tumble-url (read-string "URL: "))))
 
 (defun tumble-reset-credentials ()
-  (interactive)
   "Reset the Tumblr login credentials"
+  (interactive)
   (setq tumble-email nil)
   (setq tumble-password nil)
   (setq tumble-url nil)
@@ -213,7 +222,7 @@
 
 ;;;###autoload
 (defun tumble-link (name url state)
-  "Posts a Tumblr link without description"
+  "Posts a Tumblr link without a description"
   (interactive "sName (optional): \nsLink: \nsState (published or draft): ")
   (tumble-post-link name url ""
                     (tumble-state-from-partial-string state)))
@@ -323,9 +332,8 @@
          (cons 'caption caption)
          (cons 'state state))))
 
-;;;; List posts
-
 (defun tumble-menu-get-post ()
+  "Returns the selected buffer from the list of posts in *Posts*"
   (with-current-buffer (get-buffer-create "*Posts*")
     (nth (1- (line-number-at-pos)) tumble-posts-cache)))
 
