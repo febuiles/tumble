@@ -78,7 +78,7 @@ tumblelog text drafts."
   (interactive)
   (with-current-buffer (get-buffer-create "*Edit draft*")
     (setq tumble-selected-draft (tumble-menu-get-post))
-    (erase-buffer)p
+    (erase-buffer)
     (tumble-set-buffer-format)
     (tumble-text-draft-edit-mode)
     (insert (tumble-body-of-post tumble-selected-draft))

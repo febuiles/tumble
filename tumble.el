@@ -396,7 +396,6 @@ elements."
                    nil))
                (tumble-extract-posts state))))
 
-
 ;;;###autoload
 (defun tumble-list-text-drafts ()
   "Display a list of text drafts.
@@ -405,7 +404,6 @@ The list is displayed in a buffer named `*Posts*'."
   (setq tumble-posts-cache (tumble-get-posts
                             'tumble-convert-text-post "draft" "regular"))
   (tumble-list-posts))
-
 
 ;;; HTTP stuff
 
