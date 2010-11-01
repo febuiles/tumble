@@ -148,7 +148,9 @@
 (defvar tumble-url nil "URL of your Tumblelog")
 
 ;; Optional information
-(defvar tumble-group nil "")
+(defvar tumble-group nil
+  "If you want to post to a secondary Tumblelog you should set this
+variable to \"https://secondary_blog.tumblr.com/\".")
 (defvar tumble-format "markdown"
   "Format of your Tumblr posts. You can use \"markdown\" or
 \"html\".")
@@ -157,6 +159,8 @@
 
 (defvar tumble-write-api-url "https://www.tumblr.com/api/write"
   "URL for the Tumblr API")
+(defvar tumble-authenticate-url "http://www.tumblr.com/api/authenticate"
+  "URL for the Tumblr authentication service")
 
 (setq tumble-states (list "published" "draft")) ; supported states
 (setq tumble-posts-cache nil)
@@ -169,8 +173,9 @@
   (interactive)
   (setq tumble-email (or tumble-email (read-string "Email: ")))
   (setq tumble-password (or tumble-password (read-passwd "Password: ")))
-  (setq tumble-group (or tumble-group (read-string "Group (optional): ")))
-  (setq tumble-url (or tumble-url (read-string "URL: "))))
+  (let ((info (tumble-parse-authentication)))
+    (setq tumble-format (cadr info))
+    (setq tumble-url (car info))))
 
 (defun tumble-reset-credentials ()
   "Reset the Tumblr login credentials"
@@ -335,10 +340,11 @@
   (multiple-value-bind (data header status) (tumble-fetch-posts-internal state)
     (cond ((eq status 200)
            data)
-          (t
-           (progn
-             (kill-buffer "*Posts*")
-             (message (format "Unknown error fetching posts: %d.
+          (if (eq status 503)
+              (message (format "Tumblr is unavailable. Please try again later"))
+            (progn
+              (kill-buffer "*Posts*")
+              (message (format "Unknown error fetching posts: %d.
 Please file a bug at http://github.com/febuiles/tumble/issues/" status)))))))
 
 (defun tumble-parse-posts (data)
@@ -396,13 +402,13 @@ The list is displayed in a buffer named `*Posts*'."
 
 (defun tumble-default-headers ()
   "Generic Tumblr headers"
-  (if (or (not tumble-email) (not tumble-password) (not tumble-group))
+  (if (or (not tumble-email) (not tumble-password))
       (tumble-login))
   (list (cons 'email     tumble-email)
         (cons 'password  tumble-password)
         (cons 'format    tumble-format)
         (cons 'generator "tumble.el")
-        (cons 'group     tumble-group)))
+        (cons 'group     (or tumble-group ""))))
 
 (defun tumble-http-post (request)
   "Send the POST request to Tumblr. Receives a list of POST
@@ -451,21 +457,37 @@ response code."
 
 (defun tumble-fetch-posts-internal (state)
   "Returns a list containing the XML data, the HTTP status message
-and the HTTP response code."
+and the HTTP response code"
   (http-post-simple (tumble-read-api-url)
                     (append (tumble-default-headers)
                             (list
                              (cons 'filter "none")
                              (cons 'state state)))))
 
+(defun tumble-get-authentication-xml ()
+  "Gets the account XML associated with the user"
+  (let ((data (car (http-post-simple tumble-authenticate-url
+                        (list (cons 'email tumble-email)
+                              (cons 'password tumble-password))))))
+    (with-temp-buffer
+      (insert data)
+      (xml-parse-region (point-min) (point-max)))))
+
+(defun tumble-parse-authentication ()
+  "Requests the authentication XML and returns the url of the
+main tumblelog and the prefered composing format for the user"
+  (let* ((root (car (tumble-get-authentication-xml)))
+         (user (nth 3 root))
+         (tumblelog (nth 5 root))
+         (default-format (cdaadr user))
+         (url (cdr (nth 8 (cadr tumblelog)))))
+    (list url default-format)))
+
 ;;; Helper functions
 
 (defun tumble-read-api-url ()
-  "Returns the URL for the read API of the tumblelog appending
-https if needed."
-  (concat "https://"
-          (replace-regexp-in-string "https?://" "" tumble-url)
-          "/api/read"))
+  "Returns the URL for the read API of the tumblelog."
+  (concat (or tumble-group (or tumble-url (tumble-login))) "api/read"))
 
 (defun tumble-region-text()
   "Returns the text of the region inside an (interactive 'r') function"
@@ -479,9 +501,9 @@ https if needed."
                                     (point-max))))
 
 (defun tumble-state-from-partial-string (st)
-  "Receives a partial string ST (e.g. \"dra\") and returns the
-closest match from the `tumble-states' list. If no value matches
-ST then the default state (\"published\") is returned."
+  "Receives a partial string ST (eg \"dra\") and returns the
+closest match from the `tumble-states' list If no value matches
+ST then the default state (\"published\") is returned"
   (let ((state (car tumble-states)))
     (if (string= st "")
         state
@@ -491,6 +513,7 @@ ST then the default state (\"published\") is returned."
                      (setq state x)))
               tumble-states)
         state))))
+
 
 (defun tumble-get-title-for-post ()
   "Asks the user for a title for his post. If no title is given
