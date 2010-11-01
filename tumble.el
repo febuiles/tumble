@@ -366,9 +366,9 @@ elements."
 
 (defun tumble-convert-text-post (post)
   "Convert a raw xml-tree post to a post tuple."
-  (list (cdaadr post)              ; ID
-        (caddr (caddr post))       ; Title
-        (caddr (cadddr post))))    ; Body
+  (list (cdaadr post)                   ; ID
+        (caddr (caddr post))            ; Title
+        (caddr (cadddr post))))         ; Body
 
 (defun tumble-get-posts (converter state type)
   "Fetch, parse, extract and convert the posts of a tumblelog."
@@ -495,11 +495,11 @@ ST then the default state (\"published\") is returned."
 (defun tumble-get-title-for-post ()
   "Asks the user for a title for his post. If no title is given
 then the original title is used"
-  (let ((current-title (tumble-title-of-post tumble-selected-draft))
-        (new-title (read-string (concat "Title [" current-title "]: "))))
-    (if (string= new-title "")
-        current-title
-      new-title)))
+  (let* ((current-title (tumble-title-of-post tumble-selected-draft))
+         (new-title (read-string (concat "Title [" current-title1 "]: "))))
+         (if (string= new-title "")
+             current-title
+           new-title)))
 
 (provide 'tumble)
 ;;; tumble.el ends here
