@@ -250,7 +250,6 @@
 
 (defun tumble-post-chat (title chat state)
   "Posts a new chat to a tumblelog"
-  (tumble-change-state state)
   (tumble-http-post
    (list (cons 'type "conversation")
          (cons 'title title)
@@ -259,7 +258,6 @@
 
 (defun tumble-post-link (name url description state)
   "Posts a link to a tumblelog"
-  (tumble-change-state state)
   (tumble-http-post
    (list (cons 'type "link")
          (cons 'name name)
@@ -269,7 +267,6 @@
 
 (defun tumble-post-photo (source caption url state)
   "Posts a photo to a tumblelog"
-  (tumble-change-state state)
   (tumble-http-post
    (list (cons 'type "photo")
          (cons 'source source)
