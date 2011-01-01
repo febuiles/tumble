@@ -1,6 +1,6 @@
 ;;; tumble.el --- an Tumblr mode for Emacs
 
-;; Copyright (C) 2008 Federico Builes
+;; Copyright (C) 2008, 2009, 2010 Federico Builes
 
 ;; Author: Federico Builes <federico.builes@gmail.com>
 ;; Contributors:
