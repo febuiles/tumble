@@ -8,6 +8,10 @@
 
 (expectations
 
+  ;; the extra field is optional, no error should be raised.
+  (expect (list "text" "title" "body" nil)
+    (tumble-new-post "text" "title" "body"))
+
   ;; test the basic accesor functions
   (expect "text"
     (tumble-post-type (post)))
