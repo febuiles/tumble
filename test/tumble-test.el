@@ -4,12 +4,12 @@
 (require 'tumble-post)
 
 (defun post ()
-  (tumble-new-post "text" "some title" "some body" "extra"))
+  (tumble-new-post "text" "some title" "some body" "extra" "published"))
 
 (expectations
 
   ;; the extra field is optional, no error should be raised.
-  (expect (list "text" "title" "body" nil)
+  (expect (list "text" "title" "body" nil nil)
     (tumble-new-post "text" "title" "body"))
 
   ;; test the basic accesor functions
@@ -21,5 +21,6 @@
     (tumble-post-body (post)))
   (expect "extra"
     (tumble-post-extra (post)))
-
+  (expect "published"
+    (tumble-post-status (post)))
 )

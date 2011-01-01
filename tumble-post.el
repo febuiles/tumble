@@ -10,12 +10,12 @@
 ;; text: type = audio, title = caption, body = filenamce/source, extra = link
 ;; text: type = video, title = caption, body = source, extra = nil
 
-(defun tumble-new-post (type title body &optional extra)
+(defun tumble-new-post (type title body &optional extra status)
   "Returns a list representing that represents a post. The
 resulting list has the elements in the same order that they
 were passed. Read post.el to find out what each of these values
 mean for each type of post."
-  (list type title body extra))
+  (list type title body extra status))
 
 (defun tumble-post-type(post)
   "Returns the type of a post."
@@ -33,5 +33,8 @@ mean for each type of post."
   "Returns the extra information of a post."
   (cadddr post))
 
+(defun tumble-post-status(post)
+  "Returns the status of a post."
+  (car (cddddr (post))))
 
 (provide 'tumble-post)
