@@ -115,6 +115,12 @@
 (setq tumble-api-url "https://www.tumblr.com/api/write")
 (setq tumble-states (list "published" "draft")) ; supported states
 
+;; GNUTLS and Mac are not friendly, default TLS to openssl.
+(cond ((equal system-type 'darwin)
+       (set tls-program '("openssl s_client -connect %h:%p -no_ssl2"
+                          "gnutls-cli -p %p %h --protocols ssl3"
+                          "gnutls-cli -p %p %h")
+
 (defun tumble-state-from-partial-string (st)
   (let ((state (car tumble-states)))
     (if (string= st "")
