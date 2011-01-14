@@ -112,7 +112,7 @@
 ;; Optional information
 (setq tumble-group nil)                      ; uncomment to use a group.
 (setq tumble-format  "markdown")            ; you can change this to html
-(setq tumble-api-url "https://www.tumblr.com/api/write")
+(setq tumble-api-url "http://www.tumblr.com/api/write")
 (setq tumble-states (list "published" "draft")) ; supported states
 
 ;; GNUTLS and Mac are not friendly, default TLS to openssl.

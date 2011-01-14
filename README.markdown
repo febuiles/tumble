@@ -70,11 +70,11 @@ set the `tumble-group` variable.
 You can also customize the format of the post by modifying the
 `tumble-format` variable. Tumble uses Markdown as default for posting.
 
-Tumble uses HTTPS when posting. This is certainly more secure than
-using HTTP, but also slower. If you want to send your passwords as
-plain text over http you can just change the `tumble-api-url`
-variable. It's `https://www.tumblr.com/api/write` by default, just
-change the `https` part to `http`.
+Tumble uses HTTP when posting. This is certainly less secure than
+using HTTPS, but it's faster and the Tumblr API behaves in a weird way
+with HTTPS. If you want to use HTTPS you can change the `tumble-api-url`
+variable. It's `http://www.tumblr.com/api/write` by default, just
+change the `http` part to `https`.
 
 
 License
