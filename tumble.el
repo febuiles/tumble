@@ -7,7 +7,7 @@
 ;; Quildreen Motta <quildreen@gmail.com>
 ;; Johan Persson <johan.z.persson@gmail.com>
 ;; Created: 1 Dec 2008
-;; Version: 1.4
+;; Version: 1.5
 ;; Keywords: tumblr
 
 ;; This file is NOT part of GNU Emacs.
