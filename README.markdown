@@ -1,3 +1,8 @@
+# Not working anymore...
+
+This mode was written to work with Tumblr's API v1. This package won't work with the newest,
+oAuth-only API.
+
 Tumble - An Emacs mode for Tumblr
 ========================
 
