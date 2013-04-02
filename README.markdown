@@ -1,7 +1,7 @@
 # Not working anymore...
 
 This mode was written to work with Tumblr's API v1. This package won't work with the newest,
-oAuth-only API.
+oAuth-only API. In the meantime you might want to use [Tumblesocks](https://github.com/gcr/tumblesocks).
 
 Tumble - An Emacs mode for Tumblr
 ========================
