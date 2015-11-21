@@ -106,15 +106,15 @@
 (require 'http-post-simple)
 
 ;; Personal information
-(setq tumble-email nil)
-(setq tumble-password nil)
-(setq tumble-url nil)
+(defvar tumble-email nil)
+(defvar tumble-password nil)
+(defvar tumble-url nil)
 
 ;; Optional information
-(setq tumble-group nil)                      ; uncomment to use a group.
-(setq tumble-format  "markdown")            ; you can change this to html
-(setq tumble-api-url "http://www.tumblr.com/api/write")
-(setq tumble-states (list "published" "draft")) ; supported states
+(defvar tumble-group nil)                      ; uncomment to use a group.
+(defvar tumble-format  "markdown")            ; you can change this to html
+(defvar tumble-api-url "http://www.tumblr.com/api/write")
+(defvar tumble-states (list "published" "draft")) ; supported states
 
 ;; GNUTLS and Mac are not friendly, default TLS to openssl.
 (cond ((equal system-type 'darwin)
