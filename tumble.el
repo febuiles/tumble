@@ -8,7 +8,7 @@
 ;; Johan Persson <johan.z.persson@gmail.com>
 ;; Created: 1 Dec 2008
 ;; Version: 1.5
-;; Package-Requires: ((http-post-simple "0"))
+;; Package-Requires: ((http-post-simple "0") (cl-lib "0.5"))
 ;; Keywords: tumblr
 
 ;; This file is NOT part of GNU Emacs.
@@ -104,6 +104,7 @@
                     (or (buffer-file-name) load-file-name))))
   (add-to-list 'load-path (concat tumble-dir "/vendor")))
 (require 'http-post-simple)
+(require 'cl-lib)
 
 ;; Personal information
 (defvar tumble-email nil)
@@ -317,7 +318,7 @@
 ;; RESPONSE is a simple http response list with (url response code)
 (defun tumble-process-response (response)
   "Returns a message based on the response code"
-  (let* ((code (third response)))       ;
+  (let* ((code (cl-third response)))       ;
     (message
      (cond ((eq code 200) "No post created")
            ((eq code 201)
